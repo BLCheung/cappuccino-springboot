@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class BannerController {
 
     //    @GetMapping("/test")
-    @RequestMapping(value = "/test", method = {RequestMethod.GET})
+    @RequestMapping(value = "/test", method = { RequestMethod.GET })
     public String test() {
-        return "Hello banner";
+        throw new RuntimeException("21142112");
+//        return "Hello banner";
     }
 }
