@@ -1,0 +1,5 @@
+server:
+  port: 8081
+
+missyou:
+  api-path: com.blcheung.missyou.api
