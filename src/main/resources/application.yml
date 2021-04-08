@@ -1,5 +1,6 @@
-server:
-  port: 8081
+spring:
+  profiles:
+    active: dev
 
 missyou:
   api-path: com.blcheung.missyou.api
