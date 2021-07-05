@@ -1,6 +1,12 @@
 spring:
   profiles:
     active: dev
+  jackson:
+    # 字段改成下划线形式
+    property-naming-strategy: SNAKE_CASE
+    serialization:
+      # 序列化时间时返回时间戳
+      WRITE_DATES_AS_TIMESTAMPS: true
 
 missyou:
   api-path: com.blcheung.missyou.api

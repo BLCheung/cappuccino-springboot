@@ -1,9 +1,9 @@
 package com.blcheung.missyou.service;
 
 import com.blcheung.missyou.model.Banner;
-import org.springframework.stereotype.Service;
 
 public interface BannerService {
+    Banner getById(Long id);
 
-//    Banner getByName(String name);
+    Banner getByName(String name);
 }
