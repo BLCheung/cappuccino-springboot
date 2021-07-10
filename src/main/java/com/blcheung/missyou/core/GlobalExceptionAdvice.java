@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.List;
 
@@ -83,7 +82,7 @@ public class GlobalExceptionAdvice {
         List<ObjectError> errors = e.getBindingResult()
                                     .getAllErrors();
 
-        String message = this.formatAllErrorMessage(errors);
+        String message = this.formatAllBeanValidatorErrorMessage(errors);
 
         return new GlobalResponseData(10001, message, requestMethod + " " + requestURI);
     }
@@ -102,21 +101,44 @@ public class GlobalExceptionAdvice {
     public GlobalResponseData handleConstraintException(HttpServletRequest request, ConstraintViolationException e) {
         String requestURI = request.getRequestURI();
         String requestMethod = request.getMethod();
-        String message = e.getMessage();    // 这是Exception的message，已拼接好的
-
-        //                for (ConstraintViolation error : e.getConstraintViolations()) {
-        //                    // 可自定义异常信息返回
-        //                    ConstraintViolation constraintViolation = error;
-        //                }
+        //        String message = e.getMessage();    // 这是Exception的message，已拼接好的
+        String message = this.formatAllConstraintViolationErrorMessage(e);
 
         return new GlobalResponseData(10001, message, requestMethod + " " + requestURI);
     }
 
 
-    private String formatAllErrorMessage(List<ObjectError> errors) {
+    /**
+     * 格式化body方式的参数验证错误
+     *
+     * @param errors
+     * @return
+     */
+    private String formatAllBeanValidatorErrorMessage(List<ObjectError> errors) {
         StringBuffer errorMsg = new StringBuffer();
         errors.forEach(error -> errorMsg.append(error.getDefaultMessage())
                                         .append(";"));
+        return errorMsg.toString();
+    }
+
+
+    /**
+     * 格式化query方式参数验证错误
+     *
+     * @param e
+     * @return
+     */
+    private String formatAllConstraintViolationErrorMessage(ConstraintViolationException e) {
+        StringBuffer errorMsg = new StringBuffer();
+        e.getConstraintViolations()
+         .forEach(err -> {
+             String[] propertyPath = err.getPropertyPath()
+                                        .toString()
+                                        .split("\\.");
+             errorMsg.append(propertyPath[ propertyPath.length - 1 ])
+                     .append(err.getMessage())
+                     .append(";");
+         });
         return errorMsg.toString();
     }
 }

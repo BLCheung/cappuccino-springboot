@@ -8,7 +8,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class SpuLatestPagingVO {
+public class SpuPagingVO {
     //    VO: 根据前端页面有选择的返回的视图层数据对象
 
     private Long id;

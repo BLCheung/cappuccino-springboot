@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 
 @RestController
 @RequestMapping("/banner")
@@ -25,9 +26,12 @@ public class BannerController {
      * @param id
      * @return
      */
-    @GetMapping("/id/{id}")
-    public Banner getById(@PathVariable Long id) {
-        return bannerService.getById(id);
+    @GetMapping("/id/{id}")     // /id/1
+    public Banner getById(@PathVariable @Positive Long id) {
+        Banner banner = bannerService.getById(id);
+        if (banner == null) throw new NotFoundException(30005);
+
+        return banner;
     }
 
     /**
@@ -36,7 +40,7 @@ public class BannerController {
      * @param name
      * @return
      */
-    @GetMapping("/name/{name}")
+    @GetMapping("/name/{name}")     // /name/a-1
     public Banner getByName(@PathVariable @NotBlank String name) {
         Banner banner = bannerService.getByName(name);
         if (banner == null) throw new NotFoundException(30005);
