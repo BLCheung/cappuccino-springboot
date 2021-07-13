@@ -59,6 +59,7 @@ public class GlobalExceptionAdvice {
 
         GlobalResponseData responseData = new GlobalResponseData(e.getCode(), codeConfiguration.getMessage(e.getCode()),
                                                                  requestMethod + " " + requestURI);
+        assert httpStatus != null;
         return new ResponseEntity<>(responseData, headers, httpStatus);
     }
 

@@ -1,5 +1,7 @@
 package com.blcheung.missyou.core.configuration;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -10,12 +12,13 @@ import java.util.Map;
 @Component
 @ConfigurationProperties(prefix = "zbl")    // 配置与之关联的配置文件字段属性前缀
 @PropertySource("classpath:config/exception-code.properties")   // 将一个类与一个properties配置文件关联
+@Getter
+@Setter
 public class ExceptionCodeConfiguration {
 
     private Map<Integer, String> codes = new HashMap<>();
 
-    public ExceptionCodeConfiguration() {
-    }
+    public ExceptionCodeConfiguration() {}
 
     /**
      * 获取对应code码的提示信息
@@ -23,15 +26,5 @@ public class ExceptionCodeConfiguration {
      * @param code
      * @return 对应的code码错误提示
      */
-    public String getMessage(int code) {
-        return codes.get(code);
-    }
-
-    public Map<Integer, String> getCodes() {
-        return codes;
-    }
-
-    public void setCodes(Map<Integer, String> codes) {
-        this.codes = codes;
-    }
+    public String getMessage(int code) { return codes.get(code); }
 }
