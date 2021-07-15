@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SpuService {
     @Autowired
-    SpuRepository spuRepository;
+    private SpuRepository spuRepository;
 
     /**
      * 获取Spu详情
