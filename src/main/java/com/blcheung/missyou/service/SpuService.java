@@ -36,8 +36,9 @@ public class SpuService {
 
     /**
      * 查询分类spu
+     *
      * @param categoryId 分类id
-     * @param isRoot 是否为父节点分类
+     * @param isRoot     是否为父节点分类
      * @param pageNum
      * @param pageSize
      * @return

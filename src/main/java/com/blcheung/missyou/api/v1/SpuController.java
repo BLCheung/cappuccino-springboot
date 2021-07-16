@@ -1,5 +1,6 @@
 package com.blcheung.missyou.api.v1;
 
+import com.blcheung.missyou.dto.PagingDTO;
 import com.blcheung.missyou.exception.http.NotFoundException;
 import com.blcheung.missyou.model.Spu;
 import com.blcheung.missyou.service.SpuService;
@@ -38,14 +39,11 @@ public class SpuController {
     /**
      * 获取最新的商品分页
      *
-     * @param pageNum
-     * @param pageSize
      * @return
      */
-    @GetMapping("/latest")  // latest?pageNum=0&pageSize=10
-    public PagingResultDozer<Spu, SpuPagingVO> getLatestPagingSpu(@RequestParam(defaultValue = "0") Integer pageNum,
-                                                                  @RequestParam(defaultValue = "10") Integer pageSize) {
-        Page<Spu> spuList = this.spuService.getLatestPagingSpu(pageNum, pageSize);
+    @PostMapping("/latest")  // latest  {pageNum:0,pageSize:10}
+    public PagingResultDozer<Spu, SpuPagingVO> getLatestPagingSpu(@RequestBody @Validated PagingDTO pagingDTO) {
+        Page<Spu> spuList = this.spuService.getLatestPagingSpu(pagingDTO.getPageNum(), pagingDTO.getPageSize());
 
         return new PagingResultDozer<>(spuList, SpuPagingVO.class);
     }
@@ -56,18 +54,16 @@ public class SpuController {
      *
      * @param categoryId
      * @param isRoot
-     * @param pageNum
-     * @param pageSize
      * @return
      */
-    @GetMapping("/by/category/{categoryId}")
+    @PostMapping("/by/category/{categoryId}")
     public PagingResultDozer<Spu, SpuPagingVO> getByCategoryId(
-            @PathVariable(name = "categoryId") @Positive() Long categoryId,
-            @RequestParam(name = "isRoot",
-                          defaultValue = "false") Boolean isRoot, @RequestParam(defaultValue = "0") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize) {
+            @PathVariable(name = "categoryId") @Positive() Long categoryId, @RequestParam(name = "isRoot",
+                                                                                          defaultValue = "false") Boolean isRoot,
+            @RequestBody @Validated PagingDTO pagingDTO) {
 
-        Page<Spu> spuPage = this.spuService.getByCategory(categoryId, isRoot, pageNum, pageSize);
+        Page<Spu> spuPage = this.spuService.getByCategory(categoryId, isRoot, pagingDTO.getPageNum(),
+                                                          pagingDTO.getPageSize());
 
         return new PagingResultDozer<>(spuPage, SpuPagingVO.class);
     }
