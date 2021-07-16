@@ -1,7 +1,6 @@
 package com.blcheung.missyou.repository;
 
 import com.blcheung.missyou.model.Spu;
-import com.blcheung.missyou.vo.PageResult;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

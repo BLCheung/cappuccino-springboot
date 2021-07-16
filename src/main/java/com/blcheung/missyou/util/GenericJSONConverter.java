@@ -20,7 +20,7 @@ public class GenericJSONConverter {
     }
 
     /**
-     * 从实体字段序列化到数据库字段
+     * 把任意类型实体字段序列化到数据库字段
      *
      * @param value
      * @param <T>
@@ -47,8 +47,7 @@ public class GenericJSONConverter {
     public static <T> T convertJSONToObject(String s, TypeReference<T> typeReference) {
         if (s == null) return null;
         try {
-            T value = objectMapper.readValue(s, typeReference);
-            return value;
+            return objectMapper.readValue(s, typeReference);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             throw new ServerErrorException(9999);
@@ -78,8 +77,7 @@ public class GenericJSONConverter {
         if (s == null) return null;
         try {
             // 这种方法可以被推倒为T类型的元素
-            T value = objectMapper.readValue(s, typeReference);
-            return value;
+            return objectMapper.readValue(s, typeReference);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             throw new ServerErrorException(9999);
