@@ -30,7 +30,7 @@ public class SpuController {
     public Spu getSpu(@RequestParam @Positive Long id) {
         Spu spu = this.spuService.getSpu(id);
         if (spu == null) {
-            throw new NotFoundException(30001);
+            throw new NotFoundException(30002);
         }
 
         return spu;
