@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class ThemeSpuItemVO extends ThemeItemVo {
+public class ThemeSpuItemVO extends ThemeItemVO {
 
     private List<SpuPagingVO> spuList;
 

@@ -1,9 +1,8 @@
 package com.blcheung.missyou.api.v1;
 
 import com.blcheung.missyou.exception.http.NotFoundException;
-import com.blcheung.missyou.model.Theme;
 import com.blcheung.missyou.service.ThemeService;
-import com.blcheung.missyou.vo.ThemeItemVo;
+import com.blcheung.missyou.vo.ThemeItemVO;
 import com.blcheung.missyou.vo.ThemeSpuItemVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,8 +26,8 @@ public class ThemeController {
      * @return
      */
     @GetMapping("/by/names")
-    public List<ThemeItemVo> getThemesByNames(@RequestParam(name = "names") String names) {
-        List<ThemeItemVo> themes = this.themeService.getThemeByNames(names);
+    public List<ThemeItemVO> getThemesByNames(@RequestParam(name = "names") String names) {
+        List<ThemeItemVO> themes = this.themeService.getThemeByNames(names);
         if (themes.isEmpty()) throw new NotFoundException(30003);
 
         return themes;

@@ -7,7 +7,7 @@ import org.springframework.beans.BeanUtils;
 
 @Getter
 @Setter
-public class ThemeItemVo {
+public class ThemeItemVO {
     private Long    id;
     private String  title;
     private String  description;
@@ -19,7 +19,7 @@ public class ThemeItemVo {
     private String  titleImg;
     private Boolean online;
 
-    public ThemeItemVo(Theme theme) {
+    public ThemeItemVO(Theme theme) {
         BeanUtils.copyProperties(theme, this);
     }
 }
