@@ -25,3 +25,4 @@
 hs_err_pid*
 /sql/missyou-v2-data.sql
 /sql/
+/src/main/resources/application.yml
