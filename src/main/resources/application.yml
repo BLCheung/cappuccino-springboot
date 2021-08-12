@@ -10,3 +10,8 @@ spring:
 
 missyou:
   api-path: com.blcheung.missyou.api
+
+wx:
+  app_id: 你的appId
+  secret: 你的secret
+  code2session: https://api.weixin.qq.com/sns/jscode2session?appid={0}&secret={1}&js_code={2}&grant_type=authorization_code
