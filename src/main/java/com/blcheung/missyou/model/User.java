@@ -1,22 +1,22 @@
 package com.blcheung.missyou.model;
 
 import com.blcheung.missyou.util.MapJSONConverter;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.Map;
-import java.util.Objects;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Where(clause = "delete_time is null")  // 会应用当前查询语句在当前Entity内
-public class User {
+public class User extends BaseEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long                id;
     private String              openid;
     private String              nickname;
