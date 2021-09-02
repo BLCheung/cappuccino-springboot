@@ -14,7 +14,7 @@ public class ResultKit {
         ResultKit.codeConfiguration = codeConfiguration;
     }
 
-    public static <T> Result<T> setResult(T data) {
+    public static <T> Result<T> resolve(T data) {
         return new Result<>(0, codeConfiguration.getMessage(0), data);
     }
 
