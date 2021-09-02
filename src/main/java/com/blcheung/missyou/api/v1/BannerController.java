@@ -1,6 +1,8 @@
 package com.blcheung.missyou.api.v1;
 
+import com.blcheung.missyou.common.Result;
 import com.blcheung.missyou.exception.http.NotFoundException;
+import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.model.Banner;
 import com.blcheung.missyou.service.BannerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +29,11 @@ public class BannerController {
      * @return
      */
     @GetMapping("/id/{id}")     // /id/1
-    public Banner getById(@PathVariable @Positive Long id) {
+    public Result<Banner> getById(@PathVariable @Positive Long id) {
         Banner banner = bannerService.getById(id);
         if (banner == null) throw new NotFoundException(30005);
 
-        return banner;
+        return ResultKit.resolve(banner);
     }
 
     /**
@@ -41,10 +43,10 @@ public class BannerController {
      * @return
      */
     @GetMapping("/name/{name}")     // /name/a-1
-    public Banner getByName(@PathVariable @NotBlank String name) {
+    public Result<Banner> getByName(@PathVariable @NotBlank String name) {
         Banner banner = bannerService.getByName(name);
         if (banner == null) throw new NotFoundException(30005);
 
-        return banner;
+        return ResultKit.resolve(banner);
     }
 }

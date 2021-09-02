@@ -1,6 +1,8 @@
 package com.blcheung.missyou.api.v1;
 
+import com.blcheung.missyou.common.Result;
 import com.blcheung.missyou.exception.http.NotFoundException;
+import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.service.ThemeService;
 import com.blcheung.missyou.vo.ThemeItemVO;
 import com.blcheung.missyou.vo.ThemeSpuItemVO;
@@ -26,11 +28,11 @@ public class ThemeController {
      * @return
      */
     @GetMapping("/by/names")
-    public List<ThemeItemVO> getThemesByNames(@RequestParam(name = "names") String names) {
+    public Result<List<ThemeItemVO>> getThemesByNames(@RequestParam(name = "names") String names) {
         List<ThemeItemVO> themes = this.themeService.getThemeByNames(names);
         if (themes.isEmpty()) throw new NotFoundException(30003);
 
-        return themes;
+        return ResultKit.resolve(themes);
     }
 
     /**
@@ -40,9 +42,9 @@ public class ThemeController {
      * @return
      */
     @GetMapping("/by/name/with_spu")
-    public ThemeSpuItemVO getThemeByNameWithSpu(@RequestParam(name = "name") String name) {
+    public Result<ThemeSpuItemVO> getThemeByNameWithSpu(@RequestParam(name = "name") String name) {
         Optional<ThemeSpuItemVO> themeWithSpu = Optional.ofNullable(this.themeService.getThemeWithSpu(name));
 
-        return themeWithSpu.orElseThrow(() -> new NotFoundException(30003));
+        return ResultKit.resolve(themeWithSpu.orElseThrow(() -> new NotFoundException(30003)));
     }
 }

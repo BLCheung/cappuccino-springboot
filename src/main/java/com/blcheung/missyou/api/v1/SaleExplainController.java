@@ -1,5 +1,7 @@
 package com.blcheung.missyou.api.v1;
 
+import com.blcheung.missyou.common.Result;
+import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.model.SaleExplain;
 import com.blcheung.missyou.service.SaleExplainServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,5 +23,7 @@ public class SaleExplainController {
      * @return
      */
     @GetMapping("/all")
-    public List<SaleExplain> getAllSaleExplain() { return this.saleExplainServices.getAllSaleExplain(); }
+    public Result<List<SaleExplain>> getAllSaleExplain() {
+        return ResultKit.resolve(this.saleExplainServices.getAllSaleExplain());
+    }
 }

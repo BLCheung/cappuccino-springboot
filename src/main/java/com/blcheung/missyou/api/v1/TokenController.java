@@ -1,8 +1,10 @@
 package com.blcheung.missyou.api.v1;
 
+import com.blcheung.missyou.common.Result;
 import com.blcheung.missyou.core.enumeration.LoginType;
 import com.blcheung.missyou.dto.TokenGetDTO;
 import com.blcheung.missyou.exception.http.NotFoundException;
+import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.service.WXAuthorizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -21,7 +23,7 @@ public class TokenController {
     private WXAuthorizationService wxAuthorizationService;
 
     @PostMapping("")
-    public Map<String, Object> getToken(@RequestBody @Validated TokenGetDTO userData) {
+    public Result<Map<String, Object>> getToken(@RequestBody @Validated TokenGetDTO userData) {
         Map<String, Object> map = new HashMap<>();
 
         String type = userData.getType();
@@ -39,6 +41,6 @@ public class TokenController {
                 throw new NotFoundException(10003);
         }
         map.put("token", token);
-        return map;
+        return ResultKit.resolve(map);
     }
 }

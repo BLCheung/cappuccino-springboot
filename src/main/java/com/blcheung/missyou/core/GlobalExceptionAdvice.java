@@ -2,6 +2,7 @@ package com.blcheung.missyou.core;
 
 import com.blcheung.missyou.core.configuration.ExceptionCodeConfiguration;
 import com.blcheung.missyou.exception.http.HttpException;
+import com.blcheung.missyou.common.ErrorResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,11 +31,13 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(Exception.class)   // 用于捕获系统异常
     @ResponseBody   // 不加的话 会无法序列化当前方法返回的对象
     @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR)    // 调整状态码为500，否则会是200
-    public GlobalResponseData handleException(HttpServletRequest request, Exception e) {
+    public ErrorResult handleException(HttpServletRequest request, Exception e) {
         String requestURI = request.getRequestURI();
         String requestMethod = request.getMethod();
         System.out.println(e.getMessage());
-        return new GlobalResponseData(9999, "服务器异常", requestMethod + " " + requestURI);
+
+        // return new GlobalResponseData(9999, "服务器异常", requestMethod + " " + requestURI);
+        return new ErrorResult(9999, codeConfiguration.getMessage(9999), requestMethod + " " + requestURI);
     }
 
 
@@ -46,7 +49,7 @@ public class GlobalExceptionAdvice {
      * @return
      */
     @ExceptionHandler(HttpException.class)
-    public ResponseEntity<GlobalResponseData> handleHttpException(HttpServletRequest request, HttpException e) {
+    public ResponseEntity<ErrorResult> handleHttpException(HttpServletRequest request, HttpException e) {
         String requestURI = request.getRequestURI();
         String requestMethod = request.getMethod();
         System.out.println(e.getMessage());
@@ -57,10 +60,10 @@ public class GlobalExceptionAdvice {
         // HttpStatus status = new HttpStatus();
         HttpStatus httpStatus = HttpStatus.resolve(e.getStatusCode());
 
-        GlobalResponseData responseData = new GlobalResponseData(e.getCode(), codeConfiguration.getMessage(e.getCode()),
-                                                                 requestMethod + " " + requestURI);
+        ErrorResult errorResult = new ErrorResult(e.getCode(), codeConfiguration.getMessage(e.getCode()),
+                                                  requestMethod + " " + requestURI);
         assert httpStatus != null;
-        return new ResponseEntity<>(responseData, headers, httpStatus);
+        return new ResponseEntity<>(errorResult, headers, httpStatus);
     }
 
 
@@ -74,8 +77,7 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    public GlobalResponseData handleBeanValidatorException(HttpServletRequest request,
-                                                           MethodArgumentNotValidException e) {
+    public ErrorResult handleBeanValidatorException(HttpServletRequest request, MethodArgumentNotValidException e) {
         String requestURI = request.getRequestURI();
         String requestMethod = request.getMethod();
 
@@ -85,7 +87,8 @@ public class GlobalExceptionAdvice {
 
         String message = this.formatAllBeanValidatorErrorMessage(errors);
 
-        return new GlobalResponseData(10001, message, requestMethod + " " + requestURI);
+        // return new GlobalResponseData(10001, message, requestMethod + " " + requestURI);
+        return new ErrorResult(10001, message, requestMethod + " " + requestURI);
     }
 
 
@@ -99,13 +102,14 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseBody
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    public GlobalResponseData handleConstraintException(HttpServletRequest request, ConstraintViolationException e) {
+    public ErrorResult handleConstraintException(HttpServletRequest request, ConstraintViolationException e) {
         String requestURI = request.getRequestURI();
         String requestMethod = request.getMethod();
         //        String message = e.getMessage();    // 这是Exception的message，已拼接好的
         String message = this.formatAllConstraintViolationErrorMessage(e);
 
-        return new GlobalResponseData(10001, message, requestMethod + " " + requestURI);
+        // return new GlobalResponseData(10001, message, requestMethod + " " + requestURI);
+        return new ErrorResult(10001, message, requestMethod + " " + requestURI);
     }
 
 

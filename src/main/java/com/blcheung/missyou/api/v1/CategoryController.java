@@ -1,6 +1,8 @@
 package com.blcheung.missyou.api.v1;
 
+import com.blcheung.missyou.common.Result;
 import com.blcheung.missyou.exception.http.NotFoundException;
+import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.model.GridCategory;
 import com.blcheung.missyou.service.CategoryService;
 import com.blcheung.missyou.vo.CategoriesAllVO;
@@ -25,9 +27,7 @@ public class CategoryController {
      * @return
      */
     @GetMapping("/all")
-    public CategoriesAllVO getAll() {
-        return this.categoryService.getAllCategories();
-    }
+    public Result<CategoriesAllVO> getAll() { return ResultKit.resolve(this.categoryService.getAllCategories()); }
 
     /**
      * 六宫格的分类
@@ -35,10 +35,10 @@ public class CategoryController {
      * @return
      */
     @GetMapping("/grid")
-    public List<GridCategory> getGird() {
+    public Result<List<GridCategory>> getGird() {
         List<GridCategory> categories = this.categoryService.getGridCategories();
         if (categories.isEmpty()) throw new NotFoundException(30009);
 
-        return categories;
+        return ResultKit.resolve(categories);
     }
 }
