@@ -1,10 +1,17 @@
 package com.blcheung.missyou.kit;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.blcheung.missyou.util.CommonUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class TokenKit {
@@ -39,6 +46,37 @@ public class TokenKit {
      * @return
      */
     public static String getToken(Long uid, Integer scope) { return makeToken(uid, scope); }
+
+    /**
+     * 获取加密的token内部附加数据
+     *
+     * @param token
+     * @return
+     */
+    public static Optional<Map<String, Claim>> getTokenClaim(String token) {
+        Algorithm algorithm = Algorithm.HMAC256(tokenKey);
+        JWTVerifier jwtVerifier = JWT.require(algorithm)
+                                     .build();
+        DecodedJWT decodedJWT;
+        try {
+            // 是否同一token
+            decodedJWT = jwtVerifier.verify(token);
+        } catch (JWTVerificationException e) {
+            // 验证失败
+            return Optional.empty();
+        }
+        return Optional.of(decodedJWT.getClaims());
+    }
+
+    /**
+     * 是否有效的token
+     * @param token
+     * @return
+     */
+    public static Boolean isVerifyToken(String token) {
+        Optional<Map<String, Claim>> tokenClaim = getTokenClaim(token);
+        return tokenClaim.isPresent();
+    }
 
     /**
      * 生成token令牌
