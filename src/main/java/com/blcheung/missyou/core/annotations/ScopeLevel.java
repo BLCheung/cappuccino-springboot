@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * 接口等级注解
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE })
+@Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface ScopeLevel {
     int value() default 4;
 }
