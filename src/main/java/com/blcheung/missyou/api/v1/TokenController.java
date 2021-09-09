@@ -2,9 +2,11 @@ package com.blcheung.missyou.api.v1;
 
 import com.blcheung.missyou.common.Result;
 import com.blcheung.missyou.core.enumeration.LoginType;
+import com.blcheung.missyou.dto.TokenDTO;
 import com.blcheung.missyou.dto.TokenGetDTO;
 import com.blcheung.missyou.exception.http.NotFoundException;
 import com.blcheung.missyou.kit.ResultKit;
+import com.blcheung.missyou.kit.TokenKit;
 import com.blcheung.missyou.service.WXAuthorizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -22,6 +24,11 @@ public class TokenController {
     @Autowired
     private WXAuthorizationService wxAuthorizationService;
 
+    /**
+     * 获取token
+     * @param userData
+     * @return
+     */
     @PostMapping("")
     public Result<Map<String, Object>> getToken(@RequestBody @Validated TokenGetDTO userData) {
         Map<String, Object> map = new HashMap<>();
@@ -41,6 +48,21 @@ public class TokenController {
                 throw new NotFoundException(10003);
         }
         map.put("token", token);
+        return ResultKit.resolve(map);
+    }
+
+    /**
+     * token是否合法
+     *
+     * @param tokenDTO
+     * @return
+     */
+    @PostMapping("/verify")
+    public Result<Map<String, Object>> verify(@RequestBody @Validated TokenDTO tokenDTO) {
+        Map<String, Object> map = new HashMap<>();
+        String token = tokenDTO.getToken();
+        Boolean isValid = TokenKit.isVerifyToken(token);
+        map.put("isValid", isValid);
         return ResultKit.resolve(map);
     }
 }
