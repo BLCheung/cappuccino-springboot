@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -27,4 +28,10 @@ public class User extends BaseEntity {
     @SuppressWarnings("JpaAttributeTypeInspection")
     @Convert(converter = MapJSONConverter.class)
     private Map<String, Object> wxProfile;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_coupon",
+               joinColumns = @JoinColumn(name = "userId"),
+               inverseJoinColumns = @JoinColumn(name = "couponId"))
+    private List<Coupon> couponList;
 }
