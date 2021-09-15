@@ -10,11 +10,11 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class ThemeSpuItemVO extends ThemeItemVO {
+public class ThemeSpuVO extends ThemeVO {
 
     private List<SpuPagingVO> spuList;
 
-    public ThemeSpuItemVO(Theme theme) {
+    public ThemeSpuVO(Theme theme) {
         super(theme);
         this.spuList = theme.getSpuList()
                             .stream()
