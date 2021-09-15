@@ -2,8 +2,8 @@ package com.blcheung.missyou.service;
 
 import com.blcheung.missyou.model.Theme;
 import com.blcheung.missyou.repository.ThemeRepository;
-import com.blcheung.missyou.vo.ThemeItemVO;
-import com.blcheung.missyou.vo.ThemeSpuItemVO;
+import com.blcheung.missyou.vo.ThemeVO;
+import com.blcheung.missyou.vo.ThemeSpuVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +22,11 @@ public class ThemeService {
      * @param names
      * @return
      */
-    public List<ThemeItemVO> getThemeByNames(String names) {
+    public List<ThemeVO> getThemeByNames(String names) {
         List<String> nameList = Arrays.asList(names.split(","));
         List<Theme> themeList = this.themeRepository.findByNames(nameList);
         return themeList.stream()
-                        .map(ThemeItemVO::new)
+                        .map(ThemeVO::new)
                         .collect(Collectors.toList());
     }
 
@@ -36,8 +36,8 @@ public class ThemeService {
      * @param name
      * @return
      */
-    public ThemeSpuItemVO getThemeWithSpu(String name) {
+    public ThemeSpuVO getThemeWithSpu(String name) {
         Theme theme = this.themeRepository.findByName(name);
-        return new ThemeSpuItemVO(theme);
+        return new ThemeSpuVO(theme);
     }
 }
