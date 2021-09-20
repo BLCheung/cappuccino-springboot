@@ -38,8 +38,10 @@ public class ActivityController {
      * @return
      */
     @GetMapping("/name/{name}/with_coupon")
-    public Result<ActivityVO> getActivityByNameWithCoupon(@PathVariable @NotBlank(message = "必须传入活动名称") String name) {
+    public Result<ActivityCouponVO> getActivityByNameWithCoupon(
+            @PathVariable @NotBlank(message = "必须传入活动名称") String name) {
         Optional<Activity> activityOptional = Optional.ofNullable(activityService.getActivityByName(name));
-        return ResultKit.resolve(new ActivityCouponVO(activityOptional.orElseThrow(() -> new NotFoundException(40001))));
+        return ResultKit.resolve(
+                new ActivityCouponVO(activityOptional.orElseThrow(() -> new NotFoundException(40001))));
     }
 }
