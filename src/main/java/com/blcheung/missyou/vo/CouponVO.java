@@ -1,21 +1,16 @@
-package com.blcheung.missyou.model;
+package com.blcheung.missyou.vo;
 
+import com.blcheung.missyou.model.Coupon;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.BeanUtils;
 
-import javax.persistence.*;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 
-@Entity
 @Getter
 @Setter
-public class Coupon extends BaseEntity {
-    @Id
-    @GeneratedValue
+public class CouponVO {
     private Long       id;
     private Long       activityId;
     private String     title;
@@ -30,9 +25,7 @@ public class Coupon extends BaseEntity {
     // 是否全场通用优惠券
     private Boolean    wholeStore;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "coupon_category",
-               joinColumns = @JoinColumn(name = "coupon_id"),
-               inverseJoinColumns = @JoinColumn(name = "category_id"))
-    private List<Category> categoryList;
+    public CouponVO(Coupon coupon) {
+        BeanUtils.copyProperties(coupon, this);
+    }
 }
