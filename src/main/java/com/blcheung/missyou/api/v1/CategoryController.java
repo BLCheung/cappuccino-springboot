@@ -3,12 +3,15 @@ package com.blcheung.missyou.api.v1;
 import com.blcheung.missyou.common.Result;
 import com.blcheung.missyou.exception.http.NotFoundException;
 import com.blcheung.missyou.kit.ResultKit;
+import com.blcheung.missyou.model.Category;
 import com.blcheung.missyou.model.GridCategory;
 import com.blcheung.missyou.service.CategoryService;
 import com.blcheung.missyou.vo.CategoriesAllVO;
+import com.blcheung.missyou.vo.CategoryCouponVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,5 +43,16 @@ public class CategoryController {
         if (categories.isEmpty()) throw new NotFoundException(30009);
 
         return ResultKit.resolve(categories);
+    }
+
+    /**
+     * 获取包含优惠券的分类
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("{id}/with_coupon")
+    public Result<CategoryCouponVO> getCategoryWithCoupon(@PathVariable Long id) {
+        return ResultKit.resolve(new CategoryCouponVO(this.categoryService.getCategoryWithCoupon(id)));
     }
 }

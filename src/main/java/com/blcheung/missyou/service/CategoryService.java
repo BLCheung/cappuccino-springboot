@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryService {
@@ -22,7 +23,7 @@ public class CategoryService {
         List<Category> roots = this.categoryRepository.findAllByIsRootOrderByIndexAsc(true);
         List<Category> subs = this.categoryRepository.findAllByIsRootOrderByIndexAsc(false);
 
-        //        Map<String, List<CategoryItemVO>> listMap = new HashMap<>();
+        //        Map<String, List<CategoryVO>> listMap = new HashMap<>();
         //        listMap.put("root", roots);
         //        listMap.put("sub", subs);
         return new CategoriesAllVO(roots, subs);
@@ -32,5 +33,10 @@ public class CategoryService {
         List<GridCategory> categories = this.gridCategoryRepository.findAll();
         if (categories.isEmpty()) throw new NotFoundException(30009);
         return categories;
+    }
+
+    public Category getCategoryWithCoupon(Long id) {
+        Optional<Category> categoryWithCoupon = Optional.ofNullable(this.categoryRepository.findCategoryById(id));
+        return categoryWithCoupon.orElseThrow(() -> new NotFoundException(40001));
     }
 }

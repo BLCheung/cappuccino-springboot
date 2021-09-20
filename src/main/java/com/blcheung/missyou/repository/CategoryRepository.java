@@ -1,7 +1,6 @@
 package com.blcheung.missyou.repository;
 
 import com.blcheung.missyou.model.Category;
-import com.blcheung.missyou.vo.CategoryItemVO;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -15,5 +14,10 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
      */
     List<Category> findAllByIsRootOrderByIndexAsc(Boolean isRoot);
 
-
+    /**
+     * 通过id找分类
+     * @param id
+     * @return
+     */
+    Category findCategoryById(Long id);
 }

@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -22,4 +23,7 @@ public class Category extends BaseEntity {
     private Long    index;
     private Boolean online;
     private Integer level;
+
+    @ManyToMany(mappedBy = "categoryList", fetch = FetchType.LAZY)
+    private List<Coupon> couponList;
 }
