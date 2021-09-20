@@ -7,7 +7,7 @@ import org.springframework.beans.BeanUtils;
 
 @Getter
 @Setter
-public class CategoryItemVO {
+public class CategoryVO {
     private Long    id;
     private String  name;
     private Boolean isRoot;
@@ -15,7 +15,7 @@ public class CategoryItemVO {
     private String  img;
     private Long    index;
 
-    public CategoryItemVO(Category category) {
+    public CategoryVO(Category category) {
         BeanUtils.copyProperties(category, this);
     }
 }
