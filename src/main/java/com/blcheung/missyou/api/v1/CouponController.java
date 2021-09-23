@@ -32,4 +32,16 @@ public class CouponController {
 
         return ResultKit.resolve(CouponVO.buildCouponList(couponList));
     }
+
+    /**
+     * 获取全场券
+     *
+     * @return
+     */
+    @GetMapping("/whole_store")
+    public Result<List<CouponVO>> getCouponByIsWholeStore() {
+        List<Coupon> couponList = this.couponService.getCouponByIsWholeStore(true);
+
+        return ResultKit.resolve(CouponVO.buildCouponList(couponList));
+    }
 }

@@ -16,4 +16,8 @@ public class CouponService {
     public List<Coupon> getCouponByCategoryId(Long cid) {
         return this.couponRepository.findCouponByCategoryId(cid, new Date());
     }
+
+    public List<Coupon> getCouponByIsWholeStore(Boolean isWholeStore) {
+        return this.couponRepository.findCouponByIsWholeStore(isWholeStore, new Date());
+    }
 }
