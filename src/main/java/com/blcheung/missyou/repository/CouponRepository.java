@@ -7,10 +7,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CouponRepository extends JpaRepository<Coupon, Long> {
-
     @Query("select c from Coupon c\n" + "join c.categoryList ca\n" + "join Activity a\n" + "on a.id = c.activityId\n" +
            "where ca.id = :cid\n" + "and :date < a.endTime\n" + "and :date > a.startTime")
     List<Coupon> findCouponByCategoryId(Long cid, Date date);

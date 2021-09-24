@@ -1,6 +1,7 @@
 package com.blcheung.missyou.api.v1;
 
 import com.blcheung.missyou.common.Result;
+import com.blcheung.missyou.core.annotations.ScopeLevel;
 import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.model.Coupon;
 import com.blcheung.missyou.service.CouponService;
@@ -41,7 +42,13 @@ public class CouponController {
     @GetMapping("/whole_store")
     public Result<List<CouponVO>> getCouponByIsWholeStore() {
         List<Coupon> couponList = this.couponService.getCouponByIsWholeStore(true);
-
         return ResultKit.resolve(CouponVO.buildCouponList(couponList));
+    }
+
+    @GetMapping("/receive/{couponId}")
+    @ScopeLevel()
+    public void receiveCoupon(@PathVariable @NotBlank Long couponId) {
+        this.couponService.receiveCoupon(couponId);
+        ResultKit.createSuccess();
     }
 }
