@@ -4,7 +4,12 @@ import com.auth0.jwt.interfaces.Claim;
 import com.blcheung.missyou.core.annotations.ScopeLevel;
 import com.blcheung.missyou.exception.http.ForbiddenException;
 import com.blcheung.missyou.exception.http.UnAuthorizedException;
+import com.blcheung.missyou.kit.LocalUserKit;
 import com.blcheung.missyou.kit.TokenKit;
+import com.blcheung.missyou.model.User;
+import com.blcheung.missyou.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -18,7 +23,11 @@ import java.util.Optional;
 /**
  * API拦截器
  */
+@Component
 public class APIPermissionInterceptor extends HandlerInterceptorAdapter {
+    @Autowired
+    private UserService userService;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws
             Exception {
@@ -34,7 +43,10 @@ public class APIPermissionInterceptor extends HandlerInterceptorAdapter {
         Map<String, Claim> tokenClaim = TokenKit.getTokenClaim(token)
                                                 .orElseThrow(() -> new UnAuthorizedException(10004));
 
-        return this.hasPermission(scopeLevel.get(), tokenClaim);
+        Boolean hasPermission = this.hasPermission(scopeLevel.get(), tokenClaim);
+        if (hasPermission) this.initLocalUser(tokenClaim);
+
+        return hasPermission;
     }
 
     @Override
@@ -46,6 +58,7 @@ public class APIPermissionInterceptor extends HandlerInterceptorAdapter {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
                                 Exception ex) throws Exception {
+        LocalUserKit.clear();
         super.afterCompletion(request, response, handler, ex);
     }
 
@@ -68,5 +81,14 @@ public class APIPermissionInterceptor extends HandlerInterceptorAdapter {
         // 权限不足访问
         if (currentScopeLevel < scopeLevel) throw new ForbiddenException(10005);
         return true;
+    }
+
+    private void initLocalUser(Map<String, Claim> tokenClaim) {
+        Long uid = tokenClaim.get("uid")
+                             .asLong();
+        Integer currentScopeLevel = tokenClaim.get("scope")
+                                              .asInt();
+        User user = this.userService.getUserById(uid);
+        LocalUserKit.init(user, currentScopeLevel);
     }
 }
