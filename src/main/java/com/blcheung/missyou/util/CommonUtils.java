@@ -1,5 +1,6 @@
 package com.blcheung.missyou.util;
 
+import java.lang.annotation.Annotation;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -36,5 +37,21 @@ public class CommonUtils {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR, days);
         return calendar.getTime();
+    }
+
+    /**
+     * 是否未超出指定时间范围
+     *
+     * @param now
+     * @param start
+     * @param end
+     * @return
+     */
+    public static Boolean isInRangeDate(Date now, Date start, Date end) {
+        long nowTime = now.getTime();
+        long startTime = start.getTime();
+        long endTime = end.getTime();
+
+        return nowTime > startTime && nowTime < endTime;
     }
 }
