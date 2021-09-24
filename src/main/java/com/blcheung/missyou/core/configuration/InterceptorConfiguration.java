@@ -1,14 +1,19 @@
 package com.blcheung.missyou.core.configuration;
 
 import com.blcheung.missyou.core.interceptors.APIPermissionInterceptor;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Component
+@Configuration
 public class InterceptorConfiguration implements WebMvcConfigurer {
+    @Bean
+    public HandlerInterceptor getAPIPermissionInterceptor() { return new APIPermissionInterceptor(); }
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new APIPermissionInterceptor());
+        registry.addInterceptor(this.getAPIPermissionInterceptor());
     }
 }

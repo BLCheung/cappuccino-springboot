@@ -23,7 +23,6 @@ import java.util.Optional;
 /**
  * API拦截器
  */
-@Component
 public class APIPermissionInterceptor extends HandlerInterceptorAdapter {
     @Autowired
     private UserService userService;
