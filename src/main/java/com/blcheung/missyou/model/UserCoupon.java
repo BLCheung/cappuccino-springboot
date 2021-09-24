@@ -1,7 +1,6 @@
 package com.blcheung.missyou.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -9,11 +8,12 @@ import java.util.Date;
 import java.util.Objects;
 
 @Entity
-@Table(name = "user_coupon",
-       schema = "zbl_missyou_v2",
-       catalog = "")
+@Table(name = "user_coupon")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserCoupon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,5 +23,4 @@ public class UserCoupon {
     private Long    orderId;
     private Integer status;
     private Date    createTime;
-    private Date    updateTime;
 }
