@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/token")
@@ -26,6 +27,7 @@ public class TokenController {
 
     /**
      * 获取token
+     *
      * @param userData
      * @return
      */
@@ -33,15 +35,15 @@ public class TokenController {
     public Result<Map<String, Object>> getToken(@RequestBody @Validated TokenGetDTO userData) {
         Map<String, Object> map = new HashMap<>();
 
-        String type = userData.getType();
         // switch一个null会导致NPE
-        if (type == null) throw new NotFoundException(10003);
+        LoginType loginType = LoginType.toType(userData.getType())
+                                       .orElseThrow(() -> new NotFoundException(10003));
         String token = null;
-        switch (LoginType.valueOf(type)) {
-            case wx:
+        switch (loginType) {
+            case WX:
                 token = wxAuthorizationService.code2Session(userData.getAccount());
                 break;
-            case email:
+            case PHONE:
                 break;
 
             default:
