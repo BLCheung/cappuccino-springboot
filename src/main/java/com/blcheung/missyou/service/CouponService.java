@@ -60,4 +60,19 @@ public class CouponService {
                                           .build();
         this.userCouponRepository.save(userCoupon);
     }
+
+    public List<Coupon> getMyAvailableCoupon() {
+        User user = LocalUserKit.getUser();
+        return this.couponRepository.findMyAvailableCoupon(user.getId(), new Date());
+    }
+
+    public List<Coupon> getMyUsedCoupon() {
+        User user = LocalUserKit.getUser();
+        return this.couponRepository.findMyUsedCoupon(user.getId());
+    }
+
+    public List<Coupon> getMyExpiredCoupon() {
+        User user = LocalUserKit.getUser();
+        return this.couponRepository.findMyExpiredCoupon(user.getId(), new Date());
+    }
 }

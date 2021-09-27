@@ -1,9 +1,12 @@
 package com.blcheung.missyou.core.enumeration;
 
+import java.util.Optional;
+import java.util.stream.Stream;
+
 public enum CouponStatus {
-    AVAILABLE(1, "可使用，未过期"),
-    USED(2, "已使用"),
-    EXPIRED(0, "未使用，已过期");
+    AVAILABLE(0, "可使用，未过期"),
+    USED(1, "已使用"),
+    EXPIRED(2, "未使用，已过期");
 
     private Integer value;
 
@@ -12,6 +15,13 @@ public enum CouponStatus {
     }
 
     public Integer getValue() { return this.value; }
+
+    public static Optional<CouponStatus> toType(Integer value) {
+        return Stream.of(CouponStatus.values())
+                     .filter(couponStatus -> couponStatus.getValue()
+                                                         .equals(value))
+                     .findAny();
+    }
 
     // public static Integer toValue(CouponStatus couponStatus) {
     //     return Stream.of(CouponStatus.values())
