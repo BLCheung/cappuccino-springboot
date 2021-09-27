@@ -7,6 +7,7 @@ import com.blcheung.missyou.exception.http.ParameterException;
 import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.model.Coupon;
 import com.blcheung.missyou.service.CouponService;
+import com.blcheung.missyou.vo.CouponCategoryVO;
 import com.blcheung.missyou.vo.CouponVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/coupon")
@@ -89,5 +92,24 @@ public class CouponController {
         }
 
         return ResultKit.resolve(CouponVO.buildCouponList(couponList));
+    }
+
+    /**
+     * 获取我可用的优惠券（带分类）
+     * 用于下单时校验该订单适用的优惠券
+     *
+     * @return
+     */
+    @GetMapping("/my/available/with_category")
+    @ScopeLevel()
+    public Result<List<CouponCategoryVO>> getMyAvailableCouponWithCategory() {
+        List<Coupon> couponList = this.couponService.getMyAvailableCoupon();
+        if (couponList.isEmpty()) return ResultKit.resolve(Collections.emptyList());
+
+        List<CouponCategoryVO> couponCategoryList = couponList.stream()
+                                                              .map(CouponCategoryVO::new)
+                                                              .collect(Collectors.toList());
+
+        return ResultKit.resolve(couponCategoryList);
     }
 }
