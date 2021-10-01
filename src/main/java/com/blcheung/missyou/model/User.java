@@ -34,4 +34,8 @@ public class User extends BaseEntity {
                joinColumns = @JoinColumn(name = "userId"),
                inverseJoinColumns = @JoinColumn(name = "couponId"))
     private List<Coupon> couponList;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId")
+    private List<UserAddress> addressList;
 }
