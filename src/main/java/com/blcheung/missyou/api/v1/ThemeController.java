@@ -27,7 +27,7 @@ public class ThemeController {
     @GetMapping("/by/names")
     public Result<List<ThemeVO>> getThemesByNames(@RequestParam(name = "names") String names) {
         List<ThemeVO> themes = this.themeService.getThemeByNames(names);
-        if (themes.isEmpty()) throw new NotFoundException(30003);
+        if (themes.isEmpty()) throw new NotFoundException(30002);
 
         return ResultKit.resolve(themes);
     }

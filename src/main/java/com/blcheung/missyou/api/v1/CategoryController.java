@@ -40,7 +40,7 @@ public class CategoryController {
     @GetMapping("/grid")
     public Result<List<GridCategory>> getGird() {
         List<GridCategory> categories = this.categoryService.getGridCategories();
-        if (categories.isEmpty()) throw new NotFoundException(30009);
+        if (categories.isEmpty()) throw new NotFoundException(30004);
 
         return ResultKit.resolve(categories);
     }

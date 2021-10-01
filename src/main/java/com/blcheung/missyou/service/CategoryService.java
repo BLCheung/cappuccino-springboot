@@ -31,7 +31,7 @@ public class CategoryService {
 
     public List<GridCategory> getGridCategories() {
         List<GridCategory> categories = this.gridCategoryRepository.findAll();
-        if (categories.isEmpty()) throw new NotFoundException(30009);
+        if (categories.isEmpty()) throw new NotFoundException(30004);
         return categories;
     }
 

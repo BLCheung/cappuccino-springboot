@@ -106,10 +106,6 @@ public class CouponController {
         List<Coupon> couponList = this.couponService.getMyAvailableCoupon();
         if (couponList.isEmpty()) return ResultKit.resolve(Collections.emptyList());
 
-        List<CouponCategoryVO> couponCategoryList = couponList.stream()
-                                                              .map(CouponCategoryVO::new)
-                                                              .collect(Collectors.toList());
-
-        return ResultKit.resolve(couponCategoryList);
+        return ResultKit.resolve(CouponCategoryVO.buildCouponCategoryList(couponList));
     }
 }

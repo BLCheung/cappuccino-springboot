@@ -31,7 +31,7 @@ public class BannerController {
     @GetMapping("/id/{id}")     // /id/1
     public Result<Banner> getById(@PathVariable @Positive Long id) {
         Banner banner = bannerService.getById(id);
-        if (banner == null) throw new NotFoundException(30005);
+        if (banner == null) throw new NotFoundException(30003);
 
         return ResultKit.resolve(banner);
     }
@@ -45,7 +45,7 @@ public class BannerController {
     @GetMapping("/name/{name}")     // /name/a-1
     public Result<Banner> getByName(@PathVariable @NotBlank String name) {
         Banner banner = bannerService.getByName(name);
-        if (banner == null) throw new NotFoundException(30005);
+        if (banner == null) throw new NotFoundException(30003);
 
         return ResultKit.resolve(banner);
     }
