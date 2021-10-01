@@ -18,6 +18,11 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    /**
+     * 获取用户收货地址列表
+     *
+     * @return
+     */
     @GetMapping("/address")
     @ScopeLevel()
     private Result<List<UserAddress>> getUserAddress() {
