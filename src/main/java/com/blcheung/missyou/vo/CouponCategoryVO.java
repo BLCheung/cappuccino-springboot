@@ -4,6 +4,7 @@ import com.blcheung.missyou.model.Coupon;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,5 +19,13 @@ public class CouponCategoryVO extends CouponVO {
                                 .stream()
                                 .map(CategoryVO::new)
                                 .collect(Collectors.toList());
+    }
+
+    public static List<CouponCategoryVO> buildCouponCategoryList(List<Coupon> couponList) {
+        if (couponList.isEmpty()) return Collections.emptyList();
+
+        return couponList.stream()
+                         .map(CouponCategoryVO::new)
+                         .collect(Collectors.toList());
     }
 }
