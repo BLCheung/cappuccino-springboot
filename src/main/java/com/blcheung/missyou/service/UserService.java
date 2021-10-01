@@ -1,6 +1,5 @@
 package com.blcheung.missyou.service;
 
-import com.blcheung.missyou.exception.http.ParameterException;
 import com.blcheung.missyou.kit.LocalUserKit;
 import com.blcheung.missyou.model.User;
 import com.blcheung.missyou.model.UserAddress;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
