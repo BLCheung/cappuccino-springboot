@@ -28,4 +28,5 @@ public class Order {
     private String     snapAddress;
     private Long       prepayId;
     private Integer    status;
+    private String     remark;
 }
