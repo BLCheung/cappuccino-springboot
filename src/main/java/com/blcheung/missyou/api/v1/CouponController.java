@@ -96,7 +96,7 @@ public class CouponController {
 
     /**
      * 获取我可用的优惠券（带分类）
-     * 用于下单时校验该订单适用的优惠券
+     * 可用于下单时校验该订单适用的优惠券
      *
      * @return
      */
