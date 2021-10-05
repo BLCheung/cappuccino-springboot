@@ -3,9 +3,7 @@ package com.blcheung.missyou.api.v1;
 import com.blcheung.missyou.common.Result;
 import com.blcheung.missyou.core.annotations.ScopeLevel;
 import com.blcheung.missyou.dto.CreateOrderDTO;
-import com.blcheung.missyou.kit.LocalUserKit;
 import com.blcheung.missyou.kit.ResultKit;
-import com.blcheung.missyou.logic.OrderChecker;
 import com.blcheung.missyou.model.UserAddress;
 import com.blcheung.missyou.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +18,12 @@ public class OrderController {
     @Autowired
     private UserService userService;
 
+
+    @PostMapping("/create")
+    public void createOrder(@RequestBody @Validated CreateOrderDTO orderDTO) {
+
+    }
+
     /**
      * 获取用户下单时的收货地址
      *
@@ -28,7 +32,7 @@ public class OrderController {
     @GetMapping("/address")
     @ScopeLevel()
     public Result<UserAddress> getUserOrderAddress() {
-        List<UserAddress> addressList = this.userService.getUserAddress();
+        List<UserAddress> addressList = this.userService.getUserAddressList();
 
         if (addressList.isEmpty()) return ResultKit.resolve(null);
 

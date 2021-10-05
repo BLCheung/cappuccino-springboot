@@ -26,6 +26,6 @@ public class UserController {
     @GetMapping("/address")
     @ScopeLevel()
     private Result<List<UserAddress>> getUserAddress() {
-        return ResultKit.resolve(this.userService.getUserAddress());
+        return ResultKit.resolve(this.userService.getUserAddressList());
     }
 }
