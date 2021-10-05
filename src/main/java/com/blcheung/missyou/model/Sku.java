@@ -37,6 +37,7 @@ public class Sku extends BaseEntity {
     private String     specs;
     private String     code;
     private Long       stock;
+    private Long       limitBuyCount;
     private Long       categoryId;
     private Long       rootCategoryId;
 
@@ -50,5 +51,9 @@ public class Sku extends BaseEntity {
     public void setSpecs(List<Spec> specs) {
         if (specs.isEmpty()) return;
         this.specs = GenericJSONConverter.convertObjectToJSON(specs);
+    }
+
+    public BigDecimal getActualPrice() {
+        return this.discountPrice != null ? this.discountPrice : this.price;
     }
 }

@@ -20,3 +20,6 @@ zbl:
   security:
     jwt_key: 12345678
     token_expired_time: 86400000
+
+  sku:
+    limit_buy_count: 99
