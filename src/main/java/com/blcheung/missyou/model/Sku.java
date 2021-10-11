@@ -53,6 +53,11 @@ public class Sku extends BaseEntity {
         this.specs = GenericJSONConverter.convertObjectToJSON(specs);
     }
 
+    /**
+     * 获取Sku的实际价格
+     *
+     * @return
+     */
     public BigDecimal getActualPrice() {
         return this.discountPrice != null ? this.discountPrice : this.price;
     }
