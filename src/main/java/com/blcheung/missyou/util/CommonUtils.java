@@ -3,6 +3,7 @@ package com.blcheung.missyou.util;
 import java.lang.annotation.Annotation;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class CommonUtils {
     /**
@@ -53,5 +54,22 @@ public class CommonUtils {
         long endTime = end.getTime();
 
         return nowTime > startTime && nowTime < endTime;
+    }
+
+    /**
+     * 是否都是唯一的id集合
+     *
+     * @param ids
+     * @return
+     */
+    public static Boolean isDistinctIds(List<Long> ids) {
+        if (ids.isEmpty()) return false;
+
+        long size = ids.size();
+        long uniqueSize = ids.stream()
+                             .distinct()
+                             .count();
+
+        return size == uniqueSize;
     }
 }
