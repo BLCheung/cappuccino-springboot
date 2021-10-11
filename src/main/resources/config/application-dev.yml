@@ -15,11 +15,15 @@ spring:
         format_sql: true
 
 
-
 zbl:
   security:
+    # 令牌钥匙
     jwt_key: 12345678
+    # 令牌过期时间
     token_expired_time: 86400000
-
   sku:
+    # 最大购买数量
     limit_buy_count: 99
+  money:
+    # 金额运算模式（0：向上取整，1：向下取整，2：正上负上，3：正下负下，4：四舍五入，5：五舍六入，6：银行家，7：抛弃模式）
+    mode: 6
