@@ -2,7 +2,6 @@ package com.blcheung.missyou.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -19,7 +18,9 @@ public class CreateOrderDTO {
     private List<SkuDTO> skuList;
 
     @NotNull(message = "收货地址不能为空")
-    private Long   addressId;
-    private Long   couponId;
-    private String remark;
+    private Long       addressId;
+
+    private List<Long> couponIds;
+
+    private String     remark;
 }
