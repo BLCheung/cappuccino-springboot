@@ -5,6 +5,7 @@ import com.blcheung.missyou.core.annotations.ScopeLevel;
 import com.blcheung.missyou.dto.CreateOrderDTO;
 import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.model.UserAddress;
+import com.blcheung.missyou.service.OrderService;
 import com.blcheung.missyou.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -16,12 +17,14 @@ import java.util.List;
 @RequestMapping("/order")
 public class OrderController {
     @Autowired
-    private UserService userService;
+    private OrderService orderService;
+    @Autowired
+    private UserService  userService;
 
 
     @PostMapping("/create")
     public void createOrder(@RequestBody @Validated CreateOrderDTO orderDTO) {
-
+        this.orderService.isOK(orderDTO);
     }
 
     /**

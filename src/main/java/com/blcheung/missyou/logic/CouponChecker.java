@@ -8,6 +8,9 @@ import com.blcheung.missyou.kit.MoneyKit;
 import com.blcheung.missyou.model.Category;
 import com.blcheung.missyou.model.Coupon;
 import com.blcheung.missyou.util.CommonUtils;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -15,25 +18,29 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// @Service
+@Service
+@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)   // 多例
 public class CouponChecker {
-    private final List<Coupon>     couponList;
-    private final List<SkuOrderBO> skuOrderBOList;
+    // private final List<Coupon>     couponList;
+    // private final List<SkuOrderBO> skuOrderBOList;
 
-    public CouponChecker(List<Coupon> couponList, List<SkuOrderBO> skuOrderBOList) {
-        this.couponList     = couponList;
-        this.skuOrderBOList = skuOrderBOList;
+    // public CouponChecker(List<Coupon> couponList, List<SkuOrderBO> skuOrderBOList) {
+    //     this.couponList     = couponList;
+    //     this.skuOrderBOList = skuOrderBOList;
+    // }
+
+    public CouponChecker() {
     }
 
     /**
      * 是否同时存在相同品类的优惠券
      */
-    public void hasSameCategory() {
-        List<Long> categoryIds = this.couponList.stream()
-                                                .map(Coupon::getCategoryList)
-                                                .flatMap(Collection::stream)
-                                                .map(Category::getId)
-                                                .collect(Collectors.toList());
+    public void hasSameCategory(List<Coupon> couponList) {
+        List<Long> categoryIds = couponList.stream()
+                                           .map(Coupon::getCategoryList)
+                                           .flatMap(Collection::stream)
+                                           .map(Category::getId)
+                                           .collect(Collectors.toList());
         long uniqueCategorySize = categoryIds.stream()
                                              .distinct()
                                              .count();
@@ -44,7 +51,7 @@ public class CouponChecker {
     /**
      * 优惠券是否过期
      */
-    public void isExpired() {
+    public void isExpired(List<Coupon> couponList) {
         // 是否有优惠券过期
         Date now = new Date();
         couponList.stream()
@@ -59,12 +66,13 @@ public class CouponChecker {
      * @param totalServerPrice 订单总价
      * @return
      */
-    public BigDecimal calc(BigDecimal totalServerPrice) {
+    public BigDecimal calc(List<Coupon> couponList, List<SkuOrderBO> skuOrderBOList, BigDecimal totalServerPrice) {
         // 优惠券累计优惠总价
-        BigDecimal totalCouponMinusPrice = this.couponList.stream()
-                                                          .map(coupon -> this.calcCouponPrice(coupon, totalServerPrice))
-                                                          .reduce(BigDecimal::add)
-                                                          .orElse(new BigDecimal("0"));
+        BigDecimal totalCouponMinusPrice = couponList.stream()
+                                                     .map(coupon -> this.calcCouponPrice(coupon, skuOrderBOList,
+                                                                                         totalServerPrice))
+                                                     .reduce(BigDecimal::add)
+                                                     .orElse(new BigDecimal("0"));
 
         // 天下没有免费的午餐!
         if (totalCouponMinusPrice.compareTo(totalServerPrice) >= 0) throw new ForbiddenException(70011);
@@ -79,7 +87,7 @@ public class CouponChecker {
      * @param totalServerPrice 订单总价
      * @return
      */
-    private BigDecimal calcCouponPrice(Coupon coupon, BigDecimal totalServerPrice) {
+    private BigDecimal calcCouponPrice(Coupon coupon, List<SkuOrderBO> skuOrderBOList, BigDecimal totalServerPrice) {
         CouponType couponType = CouponType.toType(coupon.getType())
                                           .orElseThrow(() -> new ForbiddenException(50004));
         // 当前优惠券总计优惠总价
@@ -93,7 +101,7 @@ public class CouponChecker {
             conditionTotalPrice = totalServerPrice;
         } else {
             // 有品类限制，该优惠券品类范围内的所有商品总价为判断条件
-            conditionTotalPrice = this.getSumPriceByCouponCategory(coupon);
+            conditionTotalPrice = this.getSumPriceByCouponCategory(coupon, skuOrderBOList);
         }
 
         // 所计算的价格是否符合优惠券的满减
@@ -121,10 +129,10 @@ public class CouponChecker {
      * @param coupon
      * @return
      */
-    private BigDecimal getSumPriceByCouponCategory(Coupon coupon) {
+    private BigDecimal getSumPriceByCouponCategory(Coupon coupon, List<SkuOrderBO> skuOrderBOList) {
         List<Category> categories = coupon.getCategoryList();
         return categories.stream()
-                         .map(category -> this.getSumPriceByCategory(this.skuOrderBOList, category.getId()))
+                         .map(category -> this.getSumPriceByCategory(skuOrderBOList, category.getId()))
                          .reduce(BigDecimal::add)
                          .orElse(new BigDecimal("0"));
     }
