@@ -20,4 +20,8 @@ public class UserAddress extends BaseEntity {
     private String  address;
     private String  addressDetail;
     private Boolean isDefault;
+
+    public String getSnapAddress() {
+        return this.address + this.addressDetail;
+    }
 }

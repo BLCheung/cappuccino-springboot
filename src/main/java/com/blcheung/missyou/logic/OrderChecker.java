@@ -5,12 +5,16 @@ import com.blcheung.missyou.exception.http.ForbiddenException;
 import com.blcheung.missyou.exception.http.NotFoundException;
 import com.blcheung.missyou.exception.http.ParameterException;
 import com.blcheung.missyou.model.Sku;
+import com.blcheung.missyou.model.SkuOrder;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)   // 多例
@@ -20,10 +24,60 @@ public class OrderChecker {
     //
     // @Autowired
     // private SkuRepository skuRepository;
+
+    // 订单sku数据模型对象
+    @Getter
+    @Setter
+    private List<SkuOrder> skuOrderList;
+
     @Value("${zbl.sku.limit_buy_count}")
     private Long limitBuyCount;
 
     public OrderChecker() {
+    }
+
+    /**
+     * 获取订单的主图
+     *
+     * @return
+     */
+    public String getOrderPrimaryImg() {
+        return this.skuOrderList.get(0)
+                                .getImg();
+    }
+
+    /**
+     * 获取订单的主标题
+     *
+     * @return
+     */
+    public String getOrderPrimaryTitle() {
+        return this.skuOrderList.get(0)
+                                .getTitle();
+    }
+
+    /**
+     * 获取订单的商品总数
+     *
+     * @return
+     */
+    public Long getOrderTotalCount() {
+        return this.skuOrderList.stream()
+                                .map(SkuOrder::getCount)
+                                .reduce(Long::sum)
+                                .orElse(0L);
+    }
+
+    /**
+     * 获取订单所有商品总价
+     *
+     * @return
+     */
+    public BigDecimal getOrderTotalPrice() {
+        return this.skuOrderList.stream()
+                                .map(SkuOrder::getTotalPrice)
+                                .reduce(BigDecimal::add)
+                                .orElse(new BigDecimal("0"));
     }
 
     // public void isOK(CreateOrderDTO orderDTO) {

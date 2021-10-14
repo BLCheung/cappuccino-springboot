@@ -1,6 +1,7 @@
 package com.blcheung.missyou.util;
 
 import java.lang.annotation.Annotation;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -71,5 +72,30 @@ public class CommonUtils {
                              .count();
 
         return size == uniqueSize;
+    }
+
+    /**
+     * 生成订单号
+     *
+     * @return
+     */
+    public static String makeOrderNo() {
+        StringBuffer sb = new StringBuffer();
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DAY_OF_YEAR);
+        String millis = String.valueOf(calendar.getTimeInMillis());
+        String micro = LocalDateTime.now()
+                                    .toString();
+        String random = String.valueOf(Math.random() * 1000)
+                              .substring(0, 2);
+        return sb.append(year)
+                 .append(month)
+                 .append(day)
+                 .append(millis.substring(millis.length() - 5))
+                 .append(micro.substring(micro.length() - 3))
+                 .append(random)
+                 .toString();
     }
 }

@@ -8,6 +8,7 @@ import com.blcheung.missyou.kit.MoneyKit;
 import com.blcheung.missyou.model.Category;
 import com.blcheung.missyou.model.Coupon;
 import com.blcheung.missyou.util.CommonUtils;
+import lombok.Getter;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,10 @@ public class CouponChecker {
     //     this.couponList     = couponList;
     //     this.skuOrderBOList = skuOrderBOList;
     // }
+
+    // 订单的优惠券累计优惠总价
+    @Getter
+    private BigDecimal totalCouponMinusPrice;
 
     public CouponChecker() {
     }
@@ -76,7 +81,7 @@ public class CouponChecker {
 
         // 天下没有免费的午餐!
         if (totalCouponMinusPrice.compareTo(totalServerPrice) >= 0) throw new ForbiddenException(70011);
-
+        this.totalCouponMinusPrice = totalCouponMinusPrice;
         return MoneyKit.discountMinusPrice(totalServerPrice, totalCouponMinusPrice);
     }
 

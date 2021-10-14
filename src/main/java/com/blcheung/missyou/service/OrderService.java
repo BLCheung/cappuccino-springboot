@@ -1,15 +1,16 @@
 package com.blcheung.missyou.service;
 
 import com.blcheung.missyou.bo.SkuOrderBO;
+import com.blcheung.missyou.core.enumeration.OrderStatus;
 import com.blcheung.missyou.dto.CreateOrderDTO;
 import com.blcheung.missyou.dto.SkuDTO;
 import com.blcheung.missyou.exception.http.NotFoundException;
+import com.blcheung.missyou.kit.LocalUserKit;
 import com.blcheung.missyou.logic.CouponChecker;
 import com.blcheung.missyou.logic.OrderChecker;
-import com.blcheung.missyou.model.Coupon;
-import com.blcheung.missyou.model.Sku;
-import com.blcheung.missyou.model.SkuOrder;
+import com.blcheung.missyou.model.*;
 import com.blcheung.missyou.repository.SkuRepository;
+import com.blcheung.missyou.util.CommonUtils;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,8 @@ public class OrderService {
     @Autowired
     private SkuRepository skuRepository;
     @Autowired
+    private UserService   userService;
+    @Autowired
     private CouponService couponService;
     @Autowired
     private OrderChecker  orderChecker;
@@ -33,11 +36,12 @@ public class OrderService {
     @Value("${zbl.order.limit_pay_time}")
     private Long          limitPayTime;
 
-    // 订单sku数据模型对象
-    @Getter
-    private List<SkuOrder> skuOrderList;
 
     public void createOrder(CreateOrderDTO orderDTO) {
+        User user = LocalUserKit.getUser();
+        // 用户地址
+        UserAddress userAddress = this.userService.getUserAddressById(user.getId(), orderDTO.getAddressId());
+
         // 前端Sku集合
         List<SkuDTO> skuDTOList = orderDTO.getSkuList();
         List<Long> skuIds = skuDTOList.stream()
@@ -56,26 +60,20 @@ public class OrderService {
         this.orderChecker.isFinalTotalServerPriceOK(finalOrderTotalPrice);
 
 
-    }
+        // 构建订单
+        String orderNo = CommonUtils.makeOrderNo();
+        Order order = Order.builder()
+                           .orderNo(orderNo)
+                           .userId(user.getId())
+                           .totalPrice(this.orderChecker.getOrderTotalPrice())
+                           .finalTotalPrice(finalOrderTotalPrice)
+                           .totalCount(this.orderChecker.getOrderTotalCount())
+                           .snapAddress(userAddress.getSnapAddress())
+                           .snapTitle(this.orderChecker.getOrderPrimaryTitle())
+                           .snapImg(this.orderChecker.getOrderPrimaryImg())
+                           .status(OrderStatus.UNPAID.getValue())
+                           .build();
 
-    /**
-     * 获取订单的主图
-     *
-     * @return
-     */
-    public String getOrderPrimaryImg() {
-        return this.skuOrderList.get(0)
-                                .getImg();
-    }
-
-    /**
-     * 获取订单的主标题
-     *
-     * @return
-     */
-    public String getOrderPrimaryTitle() {
-        return this.skuOrderList.get(0)
-                                .getTitle();
     }
 
 
@@ -92,10 +90,13 @@ public class OrderService {
         BigDecimal finalTotalServerPrice = new BigDecimal("0");
         // 订单所有sku业务对象集合
         List<SkuOrderBO> skuOrderBOList = new ArrayList<>();
-
+        // 订单sku模型对象集合
+        List<SkuOrder> skuOrderList = new ArrayList<>();
+        Sku sku;
+        SkuDTO skuDTO;
         for (int i = 0; i < serverSkuList.size(); i++) {
-            Sku sku = serverSkuList.get(i);
-            SkuDTO skuDTO = skuDTOList.get(i);
+            sku    = serverSkuList.get(i);
+            skuDTO = skuDTOList.get(i);
             // 是否售罄或库存不足
             this.orderChecker.isOutOfStock(sku, skuDTO);
             // 是否超出最大购买限制
@@ -104,10 +105,12 @@ public class OrderService {
             SkuOrderBO skuOrderBO = new SkuOrderBO(sku, skuDTO);
             SkuOrder skuOrder = new SkuOrder(sku, skuOrderBO);
             skuOrderBOList.add(skuOrderBO);
-            this.skuOrderList.add(skuOrder);
-
+            skuOrderList.add(skuOrder);
             finalTotalServerPrice = finalTotalServerPrice.add(skuOrderBO.getTotalPrice());
         }
+
+        // 保存进orderChecker
+        this.orderChecker.setSkuOrderList(skuOrderList);
 
         if (orderDTO.getCouponIds() != null && !orderDTO.getCouponIds()
                                                         .isEmpty()) {

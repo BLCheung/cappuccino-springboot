@@ -1,16 +1,23 @@
 package com.blcheung.missyou.model;
 
+import com.blcheung.missyou.util.GenericJSONConverter;
+import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "`Order`")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,4 +36,13 @@ public class Order {
     private Long       prepayId;
     private Integer    status;
     private String     remark;
+
+    public void setSnapItems(List<SkuOrder> skuOrderList) {
+        if (skuOrderList.isEmpty()) return;
+        this.snapItems = GenericJSONConverter.convertObjectToJSON(skuOrderList);
+    }
+
+    public List<SkuOrder> getSnapItems() {
+        return GenericJSONConverter.convertJSONToObject(this.snapItems, new TypeReference<List<SkuOrder>>() {});
+    }
 }

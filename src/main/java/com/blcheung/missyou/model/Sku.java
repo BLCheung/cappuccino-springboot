@@ -2,6 +2,7 @@ package com.blcheung.missyou.model;
 
 import com.blcheung.missyou.util.GenericJSONConverter;
 import com.blcheung.missyou.util.ListJSONConverter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -60,5 +62,18 @@ public class Sku extends BaseEntity {
      */
     public BigDecimal getActualPrice() {
         return this.discountPrice != null ? this.discountPrice : this.price;
+    }
+
+    /**
+     * 获取规格值名称数组
+     *
+     * @return
+     */
+    @JsonIgnore // 不需要传到前端
+    public List<String> getSpecValues() {
+        return this.getSpecs()
+                   .stream()
+                   .map(Spec::getValue)
+                   .collect(Collectors.toList());
     }
 }

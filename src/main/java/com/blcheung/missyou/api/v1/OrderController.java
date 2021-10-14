@@ -24,7 +24,7 @@ public class OrderController {
 
     @PostMapping("/create")
     public void createOrder(@RequestBody @Validated CreateOrderDTO orderDTO) {
-        this.orderService.isOK(orderDTO);
+        this.orderService.createOrder(orderDTO);
     }
 
     /**
