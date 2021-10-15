@@ -12,8 +12,8 @@ import com.blcheung.missyou.logic.OrderChecker;
 import com.blcheung.missyou.model.*;
 import com.blcheung.missyou.repository.OrderRepository;
 import com.blcheung.missyou.repository.SkuRepository;
+import com.blcheung.missyou.repository.UserCouponRepository;
 import com.blcheung.missyou.util.CommonUtils;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,23 +27,25 @@ import java.util.stream.Collectors;
 @Service
 public class OrderService {
     @Autowired
-    private SkuRepository   skuRepository;
+    private SkuRepository        skuRepository;
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderRepository      orderRepository;
     @Autowired
-    private UserService     userService;
+    private UserCouponRepository userCouponRepository;
     @Autowired
-    private CouponService   couponService;
+    private UserService          userService;
     @Autowired
-    private OrderChecker    orderChecker;
+    private CouponService        couponService;
     @Autowired
-    private CouponChecker   couponChecker;
+    private OrderChecker         orderChecker;
+    @Autowired
+    private CouponChecker        couponChecker;
     @Value("${zbl.order.limit_pay_time}")
-    private Long            limitPayTime;
+    private Long                 limitPayTime;
 
 
     @Transactional  // 加上事务，同时对多张表进行增删查改时确保多张表能正确同步，一旦出错能够同时回滚所有事务
-    public void createOrder(CreateOrderDTO orderDTO) {
+    public Long createOrder(CreateOrderDTO orderDTO) {
         User user = LocalUserKit.getUser();
         // 用户地址
         UserAddress userAddress = this.userService.getUserAddressById(user.getId(), orderDTO.getAddressId());
@@ -84,9 +86,14 @@ public class OrderService {
         this.orderRepository.save(order);
 
         // 扣减库存
-        this.reduceStock();
-        // TODO:核销优惠券
-        
+        this.reduceStock(this.orderChecker.getSkuOrderList());
+        // 核销优惠券
+        if (orderDTO.getCouponIds() != null && !orderDTO.getCouponIds()
+                                                        .isEmpty()) {
+            this.writeOffCoupon(user.getId(), order.getId(), orderDTO.getCouponIds());
+        }
+
+        return order.getId();
     }
 
 
@@ -162,12 +169,27 @@ public class OrderService {
 
     /**
      * 扣减库存
+     *
+     * @param skuOrderList
      */
-    private void reduceStock() {
-        List<SkuOrder> skuOrderList = this.orderChecker.getSkuOrderList();
+    private void reduceStock(List<SkuOrder> skuOrderList) {
         for (SkuOrder skuOrder : skuOrderList) {
             int result = this.skuRepository.reduceStock(skuOrder.getId(), skuOrder.getCount());
             if (result != 1) throw new ForbiddenException(70004);
+        }
+    }
+
+    /**
+     * 核销优惠券
+     *
+     * @param userId
+     * @param orderId
+     * @param couponIds
+     */
+    private void writeOffCoupon(Long userId, Long orderId, List<Long> couponIds) {
+        for (Long couponId : couponIds) {
+            int result = this.userCouponRepository.writeOff(userId, couponId, orderId);
+            if (result != 1) throw new ForbiddenException(50006);
         }
     }
 }

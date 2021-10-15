@@ -22,20 +22,12 @@ import java.util.stream.Collectors;
 @Service
 @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)   // 多例
 public class CouponChecker {
-    // private final List<Coupon>     couponList;
-    // private final List<SkuOrderBO> skuOrderBOList;
-
-    // public CouponChecker(List<Coupon> couponList, List<SkuOrderBO> skuOrderBOList) {
-    //     this.couponList     = couponList;
-    //     this.skuOrderBOList = skuOrderBOList;
-    // }
 
     // 订单的优惠券累计优惠总价
     @Getter
     private BigDecimal totalCouponMinusPrice;
 
-    public CouponChecker() {
-    }
+    public CouponChecker() {}
 
     /**
      * 是否同时存在相同品类的优惠券

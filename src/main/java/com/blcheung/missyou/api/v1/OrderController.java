@@ -22,9 +22,18 @@ public class OrderController {
     private UserService  userService;
 
 
+    /**
+     * 创建订单
+     *
+     * @param orderDTO
+     * @return
+     */
     @PostMapping("/create")
-    public void createOrder(@RequestBody @Validated CreateOrderDTO orderDTO) {
-        this.orderService.createOrder(orderDTO);
+    @ScopeLevel()
+    public Result<Long> createOrder(@RequestBody @Validated CreateOrderDTO orderDTO) {
+        Long orderId = this.orderService.createOrder(orderDTO);
+
+        return ResultKit.resolve(orderId);
     }
 
     /**

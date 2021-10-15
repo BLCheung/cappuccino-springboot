@@ -2,10 +2,8 @@ package com.blcheung.missyou.model;
 
 import com.blcheung.missyou.util.GenericJSONConverter;
 import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -18,6 +16,8 @@ import java.util.List;
 @Setter
 @Builder
 @NoArgsConstructor
+@AllArgsConstructor
+@Where(clause = "delete_time is null")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
