@@ -4,17 +4,20 @@ import com.blcheung.missyou.bo.SkuOrderBO;
 import com.blcheung.missyou.core.enumeration.OrderStatus;
 import com.blcheung.missyou.dto.CreateOrderDTO;
 import com.blcheung.missyou.dto.SkuDTO;
+import com.blcheung.missyou.exception.http.ForbiddenException;
 import com.blcheung.missyou.exception.http.NotFoundException;
 import com.blcheung.missyou.kit.LocalUserKit;
 import com.blcheung.missyou.logic.CouponChecker;
 import com.blcheung.missyou.logic.OrderChecker;
 import com.blcheung.missyou.model.*;
+import com.blcheung.missyou.repository.OrderRepository;
 import com.blcheung.missyou.repository.SkuRepository;
 import com.blcheung.missyou.util.CommonUtils;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,19 +27,22 @@ import java.util.stream.Collectors;
 @Service
 public class OrderService {
     @Autowired
-    private SkuRepository skuRepository;
+    private SkuRepository   skuRepository;
     @Autowired
-    private UserService   userService;
+    private OrderRepository orderRepository;
     @Autowired
-    private CouponService couponService;
+    private UserService     userService;
     @Autowired
-    private OrderChecker  orderChecker;
+    private CouponService   couponService;
     @Autowired
-    private CouponChecker couponChecker;
+    private OrderChecker    orderChecker;
+    @Autowired
+    private CouponChecker   couponChecker;
     @Value("${zbl.order.limit_pay_time}")
-    private Long          limitPayTime;
+    private Long            limitPayTime;
 
 
+    @Transactional  // 加上事务，同时对多张表进行增删查改时确保多张表能正确同步，一旦出错能够同时回滚所有事务
     public void createOrder(CreateOrderDTO orderDTO) {
         User user = LocalUserKit.getUser();
         // 用户地址
@@ -52,6 +58,7 @@ public class OrderService {
 
         // 是否存在对应Sku
         this.orderChecker.isSkuNotOnSale(serverSkuList.size(), skuIds.size());
+
         // 订单总价
         BigDecimal finalOrderTotalPrice;
 
@@ -73,7 +80,13 @@ public class OrderService {
                            .snapImg(this.orderChecker.getOrderPrimaryImg())
                            .status(OrderStatus.UNPAID.getValue())
                            .build();
+        order.setSnapItems(this.orderChecker.getSkuOrderList());
+        this.orderRepository.save(order);
 
+        // 扣减库存
+        this.reduceStock();
+        // TODO:核销优惠券
+        
     }
 
 
@@ -92,6 +105,7 @@ public class OrderService {
         List<SkuOrderBO> skuOrderBOList = new ArrayList<>();
         // 订单sku模型对象集合
         List<SkuOrder> skuOrderList = new ArrayList<>();
+
         Sku sku;
         SkuDTO skuDTO;
         for (int i = 0; i < serverSkuList.size(); i++) {
@@ -144,5 +158,16 @@ public class OrderService {
         finalOrderCouponTotalPrice = this.couponChecker.calc(userCouponList, skuOrderBOList, finalTotalServerPrice);
 
         return finalOrderCouponTotalPrice;
+    }
+
+    /**
+     * 扣减库存
+     */
+    private void reduceStock() {
+        List<SkuOrder> skuOrderList = this.orderChecker.getSkuOrderList();
+        for (SkuOrder skuOrder : skuOrderList) {
+            int result = this.skuRepository.reduceStock(skuOrder.getId(), skuOrder.getCount());
+            if (result != 1) throw new ForbiddenException(70004);
+        }
     }
 }
