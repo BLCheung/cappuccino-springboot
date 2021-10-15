@@ -12,6 +12,7 @@ import lombok.Getter;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -20,7 +21,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)   // 多例
+// @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)   // 多例
+@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)   // 当前请求多例
 public class CouponChecker {
 
     // 订单的优惠券累计优惠总价
