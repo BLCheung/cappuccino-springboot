@@ -18,7 +18,7 @@ public class TokenKit {
     // 盐钥匙
     private static       String  tokenKey;
     // 到期时间
-    private static       Integer expiredTime;
+    private static       Long    expiredTime;
     // 默认的权限等级
     private static final Integer defaultScope = 8;
 
@@ -28,7 +28,7 @@ public class TokenKit {
     }
 
     @Value("${zbl.security.token_expired_time}")
-    public void setExpiredTime(Integer token_expired_time) { TokenKit.expiredTime = token_expired_time; }
+    public void setExpiredTime(Long token_expired_time) { TokenKit.expiredTime = token_expired_time; }
 
     /**
      * 获取token
@@ -70,6 +70,7 @@ public class TokenKit {
 
     /**
      * 是否有效的token
+     *
      * @param token
      * @return
      */

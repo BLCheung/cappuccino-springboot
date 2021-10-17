@@ -23,9 +23,9 @@ public class CommonUtils {
      * @param seconds 秒
      * @return
      */
-    public static Date getFutureDateWithSecond(Integer seconds) {
+    public static Date getFutureDateWithSecond(Long seconds) {
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.SECOND, seconds);
+        calendar.add(Calendar.SECOND, seconds.intValue());
         return calendar.getTime();
     }
 
