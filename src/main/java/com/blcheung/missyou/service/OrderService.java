@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,6 +81,8 @@ public class OrderService {
                            .snapAddress(userAddress.getSnapAddress())
                            .snapTitle(this.orderChecker.getOrderPrimaryTitle())
                            .snapImg(this.orderChecker.getOrderPrimaryImg())
+                           .placedTime(new Date())
+                           .expiredTime(CommonUtils.getFutureDateWithSecond(this.limitPayTime))
                            .status(OrderStatus.UNPAID.getValue())
                            .build();
         order.setSnapItems(this.orderChecker.getSkuOrderList());
