@@ -19,7 +19,7 @@ public interface SpuRepository extends JpaRepository<Spu, Long> {
      * @param pageable
      * @return
      */
-    Page<Spu> findByCategoryIdOrderByCreateTimeDesc(Long categoryId, Pageable pageable);
+    Page<Spu> findByCategoryId(Long categoryId, Pageable pageable);
     // "select * from spu where categoryId = categoryId"
 
     /**
@@ -29,5 +29,5 @@ public interface SpuRepository extends JpaRepository<Spu, Long> {
      * @param pageable
      * @return
      */
-    Page<Spu> findByRootCategoryIdOrderByCreateTime(Long rootCategoryId, Pageable pageable);
+    Page<Spu> findByRootCategoryId(Long rootCategoryId, Pageable pageable);
 }

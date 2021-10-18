@@ -1,11 +1,13 @@
 package com.blcheung.missyou.service;
 
+import com.blcheung.missyou.dto.CategorySpuPagingDTO;
+import com.blcheung.missyou.dto.PagingDTO;
+import com.blcheung.missyou.kit.PagingKit;
 import com.blcheung.missyou.model.Spu;
 import com.blcheung.missyou.repository.SpuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,30 +28,27 @@ public class SpuService {
     /**
      * 获取最新的spu分页
      *
+     * @param pagingDTO
      * @return
      */
-    public Page<Spu> getLatestPagingSpu(Integer pageNum, Integer pageSize) {
-        PageRequest pageRequest = PageRequest.of(pageNum, pageSize, Sort.by("createTime")  // 因为jpa操作的也是model，所以为model字段
-                                                                        .descending());
-        return this.spuRepository.findAll(pageRequest);
+    public Page<Spu> getLatestPagingSpu(PagingDTO pagingDTO) {
+        Pageable pageable = PagingKit.buildLatest(pagingDTO);
+        return this.spuRepository.findAll(pageable);
     }
 
     /**
      * 查询分类spu
      *
-     * @param categoryId 分类id
-     * @param isRoot     是否为父节点分类
-     * @param pageNum
-     * @param pageSize
+     * @param categorySpuPagingDTO
      * @return
      */
-    public Page<Spu> getByCategory(Long categoryId, Boolean isRoot, Integer pageNum, Integer pageSize) {
-        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+    public Page<Spu> getByCategory(CategorySpuPagingDTO categorySpuPagingDTO) {
+        Pageable pageable = PagingKit.buildLatest(categorySpuPagingDTO);
 
-        if (isRoot) {
-            return this.spuRepository.findByRootCategoryIdOrderByCreateTime(categoryId, pageRequest);
+        if (categorySpuPagingDTO.getIsRoot()) {
+            return this.spuRepository.findByRootCategoryId(categorySpuPagingDTO.getCategoryId(), pageable);
         }
 
-        return this.spuRepository.findByCategoryIdOrderByCreateTimeDesc(categoryId, pageRequest);
+        return this.spuRepository.findByCategoryId(categorySpuPagingDTO.getCategoryId(), pageable);
     }
 }

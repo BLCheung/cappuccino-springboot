@@ -1,6 +1,7 @@
 package com.blcheung.missyou.api.v1;
 
 import com.blcheung.missyou.common.Result;
+import com.blcheung.missyou.dto.CategorySpuPagingDTO;
 import com.blcheung.missyou.dto.PagingDTO;
 import com.blcheung.missyou.exception.http.NotFoundException;
 import com.blcheung.missyou.kit.ResultKit;
@@ -41,11 +42,12 @@ public class SpuController {
     /**
      * 获取最新的商品分页
      *
+     * @param pagingDTO
      * @return
      */
     @PostMapping("/latest")  // latest  {pageNum:0,pageSize:10}
     public Result<PagingResultDozer<Spu, SpuPagingVO>> getLatestPagingSpu(@RequestBody @Validated PagingDTO pagingDTO) {
-        Page<Spu> spuList = this.spuService.getLatestPagingSpu(pagingDTO.getPageNum(), pagingDTO.getPageSize());
+        Page<Spu> spuList = this.spuService.getLatestPagingSpu(pagingDTO);
 
         return ResultKit.resolve(new PagingResultDozer<>(spuList, SpuPagingVO.class));
     }
@@ -54,18 +56,14 @@ public class SpuController {
     /**
      * 根据获取分类Spu
      *
-     * @param categoryId
-     * @param isRoot
+     * @param categorySpuPagingDTO
      * @return
      */
-    @PostMapping("/by/category/{categoryId}")
+    @PostMapping("/by/category")
     public Result<PagingResultDozer<Spu, SpuPagingVO>> getByCategoryId(
-            @PathVariable(name = "categoryId") @Positive() Long categoryId, @RequestParam(name = "isRoot",
-                                                                                          defaultValue = "false") Boolean isRoot,
-            @RequestBody @Validated PagingDTO pagingDTO) {
+            @RequestBody @Validated CategorySpuPagingDTO categorySpuPagingDTO) {
 
-        Page<Spu> spuPage = this.spuService.getByCategory(categoryId, isRoot, pagingDTO.getPageNum(),
-                                                          pagingDTO.getPageSize());
+        Page<Spu> spuPage = this.spuService.getByCategory(categorySpuPagingDTO);
 
         return ResultKit.resolve(new PagingResultDozer<>(spuPage, SpuPagingVO.class));
     }
