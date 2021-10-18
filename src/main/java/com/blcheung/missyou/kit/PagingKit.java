@@ -34,6 +34,7 @@ public class PagingKit {
     public static Pageable build(PagingDTO pagingDTO, Sort sort) { return paging(pagingDTO, sort); }
 
     private static Pageable paging(PagingDTO pagingDTO, Sort sort) {
-        return PageRequest.of(pagingDTO.getPageNum(), pagingDTO.getPageSize(), sort);
+        // JPA中，分页查询是从第0页开始的，所以得-1
+        return PageRequest.of(pagingDTO.getPageNum() - 1, pagingDTO.getPageSize(), sort);
     }
 }

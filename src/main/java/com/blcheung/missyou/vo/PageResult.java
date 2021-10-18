@@ -26,7 +26,7 @@ public class PageResult<T> {
 
     void initPageParams(Page<T> page) {
         this.hasNext   = page.hasNext();
-        this.pageNum   = page.getNumber();
+        this.pageNum   = page.getNumber() + 1;  // JPA分页默认从0开始，+1同步前端
         this.pageSize  = page.getSize();
         this.total     = page.getTotalElements();
         this.totalPage = page.getTotalPages();
