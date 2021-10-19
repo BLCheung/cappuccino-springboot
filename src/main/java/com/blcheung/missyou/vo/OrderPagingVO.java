@@ -1,26 +1,20 @@
-package com.blcheung.missyou.model;
+package com.blcheung.missyou.vo;
 
+import com.blcheung.missyou.model.SkuOrder;
 import com.blcheung.missyou.util.GenericJSONConverter;
 import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.*;
-import org.hibernate.annotations.Where;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-@Entity
-@Table(name = "`Order`")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
-@Where(clause = "delete_time is null")
-public class Order extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class OrderPagingVO {
     private Long       id;
     private String     orderNo;
     private Long       userId;
@@ -32,10 +26,9 @@ public class Order extends BaseEntity {
     private String     snapImg;
     private String     snapTitle;
     private String     snapItems;
-    private String     snapAddress;
     private Long       prepayId;
     private Integer    status;
-    private String     remark;
+    private Long       limitPayTime;
 
     public void setSnapItems(List<SkuOrder> skuOrderList) {
         if (skuOrderList.isEmpty()) return;

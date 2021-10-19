@@ -3,10 +3,13 @@ package com.blcheung.missyou.service;
 import com.blcheung.missyou.bo.SkuOrderBO;
 import com.blcheung.missyou.core.enumeration.OrderStatus;
 import com.blcheung.missyou.dto.CreateOrderDTO;
+import com.blcheung.missyou.dto.OrderPagingDTO;
 import com.blcheung.missyou.dto.SkuDTO;
 import com.blcheung.missyou.exception.http.ForbiddenException;
 import com.blcheung.missyou.exception.http.NotFoundException;
+import com.blcheung.missyou.exception.http.ParameterException;
 import com.blcheung.missyou.kit.LocalUserKit;
+import com.blcheung.missyou.kit.PagingKit;
 import com.blcheung.missyou.logic.CouponChecker;
 import com.blcheung.missyou.logic.OrderChecker;
 import com.blcheung.missyou.model.*;
@@ -14,8 +17,12 @@ import com.blcheung.missyou.repository.OrderRepository;
 import com.blcheung.missyou.repository.SkuRepository;
 import com.blcheung.missyou.repository.UserCouponRepository;
 import com.blcheung.missyou.util.CommonUtils;
+import com.blcheung.missyou.vo.OrderPagingVO;
+import com.blcheung.missyou.vo.PagingResultDozer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,6 +104,34 @@ public class OrderService {
         }
 
         return order.getId();
+    }
+
+    /**
+     * 获取订单列表
+     *
+     * @param orderPagingDTO
+     * @return
+     */
+    public PagingResultDozer<Order, OrderPagingVO> getOrderList(OrderPagingDTO orderPagingDTO) {
+        OrderStatus orderStatus = OrderStatus.toType(orderPagingDTO.getStatus())
+                                             .orElseThrow(() -> new ParameterException(70012));
+        User user = LocalUserKit.getUser();
+
+        Pageable pageable = PagingKit.buildLatest(orderPagingDTO);
+
+        Page<Order> orderPaging;
+        if (orderStatus == OrderStatus.ALL) {
+            orderPaging = this.orderRepository.findByUserId(user.getId(), pageable);
+        } else {
+            orderPaging = this.orderRepository.findByUserIdAndStatus(user.getId(), orderStatus.getValue(), pageable);
+        }
+        PagingResultDozer<Order, OrderPagingVO> pagingResultDozer = new PagingResultDozer<>(orderPaging,
+                                                                                            OrderPagingVO.class);
+        // noinspection unchecked
+        pagingResultDozer.getList()
+                         .forEach((orderPagingVO) -> ( (OrderPagingVO) orderPagingVO ).setLimitPayTime(
+                                 this.limitPayTime));
+        return pagingResultDozer;
     }
 
 
