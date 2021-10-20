@@ -17,8 +17,10 @@ import com.blcheung.missyou.repository.OrderRepository;
 import com.blcheung.missyou.repository.SkuRepository;
 import com.blcheung.missyou.repository.UserCouponRepository;
 import com.blcheung.missyou.util.CommonUtils;
+import com.blcheung.missyou.vo.OrderDetailVO;
 import com.blcheung.missyou.vo.OrderPagingVO;
 import com.blcheung.missyou.vo.PagingResultDozer;
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -30,6 +32,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -142,6 +145,21 @@ public class OrderService {
                          .forEach((orderPagingVO) -> ( (OrderPagingVO) orderPagingVO ).setLimitPayTime(
                                  this.limitPayTime));
         return pagingResultDozer;
+    }
+
+    /**
+     * 获取订单详情
+     *
+     * @param orderId
+     * @return
+     */
+    public OrderDetailVO getOrderDetail(Long orderId) {
+        User user = LocalUserKit.getUser();
+
+        Optional<Order> orderOptional = this.orderRepository.findFirstByUserIdAndId(user.getId(), orderId);
+        Order order = orderOptional.orElseThrow(() -> new NotFoundException(70001));
+
+        return new OrderDetailVO(order, this.limitPayTime);
     }
 
 

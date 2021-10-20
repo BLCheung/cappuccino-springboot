@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -16,4 +16,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> findByUserIdAndStatus(Long uid, Integer status, Pageable pageable);
 
     Page<Order> findByUserIdAndStatusAndExpiredTimeGreaterThan(Long uid, Integer status, Date now, Pageable pageable);
+
+    Optional<Order> findFirstByUserIdAndId(Long uid, Long oid);
 }

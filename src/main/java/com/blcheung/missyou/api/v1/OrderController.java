@@ -9,12 +9,14 @@ import com.blcheung.missyou.model.Order;
 import com.blcheung.missyou.model.UserAddress;
 import com.blcheung.missyou.service.OrderService;
 import com.blcheung.missyou.service.UserService;
+import com.blcheung.missyou.vo.OrderDetailVO;
 import com.blcheung.missyou.vo.OrderPagingVO;
 import com.blcheung.missyou.vo.PagingResultDozer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -52,6 +54,20 @@ public class OrderController {
         PagingResultDozer<Order, OrderPagingVO> orderList = this.orderService.getOrderList(orderPagingDTO);
 
         return ResultKit.resolve(orderList);
+    }
+
+    /**
+     * 获取订单详情
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/detail/{id}")
+    @ScopeLevel
+    public Result<OrderDetailVO> getOrderDetail(@PathVariable @NotNull(message = "订单id不能为空") Long id) {
+        OrderDetailVO orderDetailVO = this.orderService.getOrderDetail(id);
+
+        return ResultKit.resolve(orderDetailVO);
     }
 
     /**
