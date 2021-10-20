@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor  // 无参构造函数，不加会导致反序列化失败，反序列化需要实例化对象，所以需要构造函数
 public class SkuOrder {
     private Long         id;
     private Long         spuId;

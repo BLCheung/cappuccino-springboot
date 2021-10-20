@@ -118,13 +118,23 @@ public class OrderService {
         User user = LocalUserKit.getUser();
 
         Pageable pageable = PagingKit.buildLatest(orderPagingDTO);
-
         Page<Order> orderPaging;
-        if (orderStatus == OrderStatus.ALL) {
-            orderPaging = this.orderRepository.findByUserId(user.getId(), pageable);
-        } else {
-            orderPaging = this.orderRepository.findByUserIdAndStatus(user.getId(), orderStatus.getValue(), pageable);
+
+        switch (orderStatus) {
+            case ALL:   // 全部
+                orderPaging = this.orderRepository.findByUserId(user.getId(), pageable);
+                break;
+            case UNPAID:    // 待支付，单独查询，因为单靠status查询可能不准确
+                orderPaging = this.orderRepository.findByUserIdAndStatusAndExpiredTimeGreaterThan(user.getId(),
+                                                                                                  orderStatus.getValue(),
+                                                                                                  new Date(), pageable);
+                break;
+            default:
+                orderPaging = this.orderRepository.findByUserIdAndStatus(user.getId(), orderStatus.getValue(),
+                                                                         pageable);
+                break;
         }
+
         PagingResultDozer<Order, OrderPagingVO> pagingResultDozer = new PagingResultDozer<>(orderPaging,
                                                                                             OrderPagingVO.class);
         // noinspection unchecked
