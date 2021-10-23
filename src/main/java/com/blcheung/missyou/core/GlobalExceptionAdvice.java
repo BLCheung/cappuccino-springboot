@@ -1,6 +1,7 @@
 package com.blcheung.missyou.core;
 
 import com.blcheung.missyou.core.configuration.ExceptionCodeConfiguration;
+import com.blcheung.missyou.exception.business.BusinessException;
 import com.blcheung.missyou.exception.http.HttpException;
 import com.blcheung.missyou.common.ErrorResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,30 @@ public class GlobalExceptionAdvice {
 
         ErrorResult errorResult = new ErrorResult(e.getCode(), codeConfiguration.getMessage(e.getCode()),
                                                   requestMethod + " " + requestURI);
+        assert httpStatus != null;
+        return new ResponseEntity<>(errorResult, headers, httpStatus);
+    }
+
+    /**
+     * 用于捕获因业务需要产生的异常
+     *
+     * @param request
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResult> handleBusinessException(HttpServletRequest request, BusinessException e) {
+        String requestURI = request.getRequestURI();
+        String requestMethod = request.getMethod();
+        System.out.println(e.getMessage());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpStatus httpStatus = HttpStatus.resolve(e.getStatusCode());
+
+        ErrorResult errorResult = new ErrorResult(e.getCode(), e.getMsg(), requestMethod + " " + requestURI);
+
         assert httpStatus != null;
         return new ResponseEntity<>(errorResult, headers, httpStatus);
     }
