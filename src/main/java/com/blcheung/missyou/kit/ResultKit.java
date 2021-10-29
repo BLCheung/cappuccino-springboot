@@ -31,6 +31,10 @@ public class ResultKit {
         throw new Failed(msg);
     }
 
+    public static Result reject(Integer code, String msg) {
+        throw new Failed(code, msg);
+    }
+
     public static void success(String msg) {
         throw new Success(msg);
     }
