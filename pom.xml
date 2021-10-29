@@ -66,6 +66,11 @@
             <artifactId>java-jwt</artifactId>
             <version>3.18.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.wxpay</groupId>
+            <artifactId>wxpay-sdk</artifactId>
+            <version>0.0.3</version>
+        </dependency>
     </dependencies>
 
     <build>
