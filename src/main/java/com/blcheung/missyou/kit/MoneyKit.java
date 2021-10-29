@@ -41,4 +41,14 @@ public class MoneyKit {
         return originPrice.multiply(offRate)
                           .setScale(2, MoneyKit.mode);
     }
+
+    /**
+     * 把BigDecimal价格转换成分为单位
+     *
+     * @param price
+     * @return
+     */
+    public static BigDecimal transferToFen(BigDecimal price) {
+        return price.multiply(new BigDecimal("100"));
+    }
 }

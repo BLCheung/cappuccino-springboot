@@ -162,6 +162,20 @@ public class OrderService {
         return new OrderDetailVO(order, this.limitPayTime);
     }
 
+    /**
+     * 保存订单的微信订单id
+     *
+     * @param orderId
+     * @param prepayId
+     */
+    public void updateOrderPrepayId(Long orderId, String prepayId) {
+        User user = LocalUserKit.getUser();
+        Order order = this.orderRepository.findFirstByUserIdAndId(user.getId(), orderId)
+                                          .orElseThrow(() -> new ParameterException(10007));
+        order.setPrepayId(prepayId);
+        this.orderRepository.save(order);
+    }
+
 
     /**
      * 计算订单总价

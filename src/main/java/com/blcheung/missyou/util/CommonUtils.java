@@ -1,6 +1,7 @@
 package com.blcheung.missyou.util;
 
 import java.lang.annotation.Annotation;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
@@ -97,5 +98,16 @@ public class CommonUtils {
                  .append(micro.substring(micro.length() - 3))
                  .append(random)
                  .toString();
+    }
+
+    /**
+     * BigDecimal转字符串
+     *
+     * @param bigDecimal
+     * @return
+     */
+    public static String toPlain(BigDecimal bigDecimal) {
+        return bigDecimal.stripTrailingZeros()
+                         .toPlainString();
     }
 }

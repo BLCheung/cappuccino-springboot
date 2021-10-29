@@ -1,5 +1,7 @@
 package com.blcheung.missyou.model;
 
+import com.blcheung.missyou.core.enumeration.OrderStatus;
+import com.blcheung.missyou.util.CommonUtils;
 import com.blcheung.missyou.util.GenericJSONConverter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.*;
@@ -33,9 +35,20 @@ public class Order extends BaseEntity {
     private String     snapTitle;
     private String     snapItems;
     private String     snapAddress;
-    private Long       prepayId;
+    private String     prepayId;
     private Integer    status;
     private String     remark;
+
+    /**
+     * 该订单是否可以支付
+     *
+     * @return
+     */
+    public Boolean canPay() {
+        if (!OrderStatus.UNPAID.equals(this.getStatusEnum())) return false;
+
+        return CommonUtils.isInRangeDate(new Date(), this.getPlacedTime(), this.getExpiredTime());
+    }
 
     public void setSnapItems(List<SkuOrder> skuOrderList) {
         if (skuOrderList.isEmpty()) return;
@@ -44,5 +57,10 @@ public class Order extends BaseEntity {
 
     public List<SkuOrder> getSnapItems() {
         return GenericJSONConverter.convertJSONToObject(this.snapItems, new TypeReference<List<SkuOrder>>() {});
+    }
+
+    public OrderStatus getStatusEnum() {
+        return OrderStatus.toType(this.getStatus())
+                          .orElse(null);
     }
 }
