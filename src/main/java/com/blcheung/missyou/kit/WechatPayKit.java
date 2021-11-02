@@ -5,6 +5,7 @@ import com.blcheung.missyou.exception.http.ServerErrorException;
 import com.blcheung.missyou.model.Order;
 import com.blcheung.missyou.util.CommonUtils;
 import com.github.wxpay.sdk.WXPay;
+import com.github.wxpay.sdk.WXPayConfig;
 import com.github.wxpay.sdk.WXPayConstants;
 import com.github.wxpay.sdk.WXPayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +43,14 @@ public class WechatPayKit {
     }
 
     /**
+     * 初始化一个微信支付
+     *
+     * @param config
+     * @return
+     */
+    public static WXPay initWxPay(WXPayConfig config) { return new WXPay(config); }
+
+    /**
      * 微信小程序的统一下单
      *
      * @param order
@@ -54,7 +67,7 @@ public class WechatPayKit {
             ResultKit.reject(10007, e.getMessage());
         }
 
-        verifyUnifyOrderResponse(respData);
+        verifyResponseMap(respData);
         // return generateMinPaySignature(respData);
 
         return respData;
@@ -75,11 +88,11 @@ public class WechatPayKit {
     }
 
     /**
-     * 校验微信返回的下单结果参数
+     * 校验微信统一下单返回的结果参数
      *
      * @param respData
      */
-    public static void verifyUnifyOrderResponse(Map<String, String> respData) {
+    public static void verifyResponseMap(Map<String, String> respData) {
         if (ObjectUtils.isEmpty(respData)) throw new ServerErrorException(10007);
 
         String returnCode = respData.get("return_code");
@@ -87,6 +100,24 @@ public class WechatPayKit {
 
         String resultCode = respData.get("result_code");
         if (WXPayConstants.FAIL.equals(resultCode)) ResultKit.reject(10007, respData.get("err_code_des"));
+    }
+
+    /**
+     * 校验微信支付成功回调的参数
+     *
+     * @param respData
+     * @return
+     */
+    public static boolean isPayResultNotifyValid(Map<String, String> respData) {
+        if (ObjectUtils.isEmpty(respData)) return false;
+
+        String returnCode = respData.get("return_code");
+        if (WXPayConstants.FAIL.equals(returnCode)) return false;
+
+        String resultCode = respData.get("result_code");
+        if (WXPayConstants.FAIL.equals(resultCode)) return false;
+
+        return true;
     }
 
     /**
@@ -127,9 +158,46 @@ public class WechatPayKit {
      *
      * @param respData
      * @return
+     * @deprecated
      */
     public static Map<String, String> generateAppPayResult(Map<String, String> respData) { return null; }
 
+    /**
+     * 解析微信回调返回的xml流数据
+     *
+     * @param stream
+     * @return
+     */
+    public static String processNotify(InputStream stream) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        StringBuilder builder = new StringBuilder();
+
+        String line;
+        while (( line = reader.readLine() ) != null) {
+            builder.append(line)
+                   .append("\n");
+        }
+        stream.close();
+        return builder.toString();
+    }
+
+    /**
+     * 微信回调成功
+     *
+     * @return
+     */
+    public static String notifySuccess() {
+        return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg>OK</return_msg></xml>";
+    }
+
+    /**
+     * 微信回调失败
+     *
+     * @return
+     */
+    public static String notifyFail() {
+        return "<xml><return_code><![CDATA[FAIL]]></return_code></xml>";
+    }
 
     private static Map<String, String> generateUnifyOrderParams(Order order) {
         Map<String, String> wxOrder = new HashMap<>();

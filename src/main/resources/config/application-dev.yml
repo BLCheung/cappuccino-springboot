@@ -27,8 +27,10 @@ zbl:
   order:
     # 订单待支付到期时间
     limit_pay_time: 3600
+    # 接收微信支付通知回调域名
     wx_notify_host: localhost:81
-    wx_notify_path: v1/pay/wx/notify
+    # 接收微信支付通知回调域名api
+    wx_notify_path: v1/pay/wechat/pay_notify
   money:
     # 金额运算模式（0：向上取整，1：向下取整，2：正上负上，3：正下负下，4：四舍五入，5：五舍六入，6：银行家，7：抛弃模式）
     mode: 6
