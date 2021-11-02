@@ -31,6 +31,7 @@ public class Order extends BaseEntity {
     private Long       totalCount;
     private Date       expiredTime;
     private Date       placedTime;
+    private Date       payTime;
     private String     snapImg;
     private String     snapTitle;
     private String     snapItems;
