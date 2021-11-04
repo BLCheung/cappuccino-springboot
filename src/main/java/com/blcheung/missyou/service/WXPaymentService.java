@@ -16,6 +16,7 @@ import com.github.wxpay.sdk.WXPay;
 import com.github.wxpay.sdk.WXPayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.Map;
@@ -48,6 +49,7 @@ public class WXPaymentService {
         return WechatPayKit.generateMinPaySignature(respData);
     }
 
+    @Transactional
     public Boolean processNotifyXml(String xml) {
         Map<String, String> data;
         try {
@@ -83,10 +85,20 @@ public class WXPaymentService {
         OrderStatus currentStatus = order.getStatusEnum();
 
         int result = Macro.Fail;
-        if (currentStatus.equals(OrderStatus.UNPAID) || currentStatus.equals(OrderStatus.CANCELED)) {
-            result = this.orderRepository.orderPaySuccess(order.getId(), new Date());
-        } else if (currentStatus.equals(OrderStatus.PAID)) {
-            return true;
+        switch (currentStatus) {
+            case CANCELED:
+                result = this.orderRepository.orderPaySuccessInExpired(order.getId(), new Date());
+                // TODO: 走退款流程
+                break;
+            case UNPAID:
+                result = this.orderRepository.orderPaySuccess(order.getId(), new Date());
+                break;
+            case PAID:
+                result = Macro.OK;
+                break;
+
+            default:
+                break;
         }
 
         return result == Macro.OK;

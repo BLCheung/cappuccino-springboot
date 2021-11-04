@@ -30,4 +30,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Modifying
     @Query("update Order o set o.status = 2,\n" + "o.payTime = :payTime\n" + "where o.id = :oid")
     int orderPaySuccess(Long oid, Date payTime);
+
+    @Modifying
+    @Query("update Order o\n" + "set o.status = 2,\n" + "o.payTime = :payTime,\n" + "o.payInExpired = true\n" +
+           "where o.id = :oid")
+    int orderPaySuccessInExpired(Long oid, Date payTime);
 }

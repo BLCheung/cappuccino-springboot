@@ -39,6 +39,7 @@ public class Order extends BaseEntity {
     private String     prepayId;
     private Integer    status;
     private String     remark;
+    private Boolean    payInExpired;    // 是否为超时后支付成功的订单
 
     /**
      * 该订单是否可以支付
