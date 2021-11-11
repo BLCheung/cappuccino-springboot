@@ -14,6 +14,13 @@ spring:
       hibernate:
         format_sql: true
 
+redis:
+  ip: localhost
+  port: 6379
+  expired_pattern: __keyevent@{0}__:expired
+  db:
+    # 订单过期数据库index
+    order_expired: 7
 
 zbl:
   security:
