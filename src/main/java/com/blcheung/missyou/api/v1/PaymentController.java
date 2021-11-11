@@ -1,6 +1,7 @@
 package com.blcheung.missyou.api.v1;
 
 import com.blcheung.missyou.common.Result;
+import com.blcheung.missyou.core.annotations.ScopeLevel;
 import com.blcheung.missyou.dto.BasePayDTO;
 import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.kit.WechatPayKit;
@@ -31,6 +32,7 @@ public class PaymentController {
      * @return
      */
     @PostMapping("/wechat_min")
+    @ScopeLevel()
     public Result<Map<String, String>> payByWechatMin(@RequestBody @Validated BasePayDTO payDTO) {
         Map<String, String> minPaySignature = this.wxPaymentService.unifiedOrder(payDTO);
 
