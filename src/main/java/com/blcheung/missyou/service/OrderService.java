@@ -1,6 +1,7 @@
 package com.blcheung.missyou.service;
 
 import com.blcheung.missyou.bo.SkuOrderBO;
+import com.blcheung.missyou.constant.Macro;
 import com.blcheung.missyou.core.enumeration.OrderStatus;
 import com.blcheung.missyou.dto.CreateOrderDTO;
 import com.blcheung.missyou.dto.OrderPagingDTO;
@@ -20,11 +21,12 @@ import com.blcheung.missyou.util.CommonUtils;
 import com.blcheung.missyou.vo.OrderDetailVO;
 import com.blcheung.missyou.vo.OrderPagingVO;
 import com.blcheung.missyou.vo.PagingResultDozer;
-import org.apache.tomcat.jni.Local;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,7 +56,8 @@ public class OrderService {
     private CouponChecker        couponChecker;
     @Value("${zbl.order.limit_pay_time}")
     private Long                 limitPayTime;
-
+    @Autowired
+    private StringRedisTemplate  stringRedisTemplate;
 
     @Transactional  // 加上事务，同时对多张表进行增删查改时确保多张表能正确同步，一旦出错能够同时回滚所有事务
     public Long createOrder(CreateOrderDTO orderDTO) {
@@ -79,7 +83,6 @@ public class OrderService {
         // 订单总价是否合法
         this.orderChecker.isFinalTotalServerPriceOK(finalOrderTotalPrice);
 
-
         // 构建订单
         String orderNo = CommonUtils.makeOrderNo();
         Order order = Order.builder()
@@ -100,11 +103,15 @@ public class OrderService {
 
         // 扣减库存
         this.reduceStock(this.orderChecker.getSkuOrderList());
+
         // 核销优惠券
+        String couponIds = String.valueOf(Macro.Fail);
         if (orderDTO.getCouponIds() != null && !orderDTO.getCouponIds()
                                                         .isEmpty()) {
+            couponIds = StringUtils.join(orderDTO.getCouponIds(), ",");
             this.writeOffCoupon(user.getId(), order.getId(), orderDTO.getCouponIds());
         }
+        this.save2Redis(user.getId(), order.getId(), couponIds);
 
         return order.getId();
     }
@@ -255,7 +262,7 @@ public class OrderService {
     private void reduceStock(List<SkuOrder> skuOrderList) {
         for (SkuOrder skuOrder : skuOrderList) {
             int result = this.skuRepository.reduceStock(skuOrder.getId(), skuOrder.getCount());
-            if (result != 1) throw new ForbiddenException(70004);
+            if (result != Macro.OK) throw new ForbiddenException(70004);
         }
     }
 
@@ -269,7 +276,19 @@ public class OrderService {
     private void writeOffCoupon(Long userId, Long orderId, List<Long> couponIds) {
         for (Long couponId : couponIds) {
             int result = this.userCouponRepository.writeOff(userId, couponId, orderId);
-            if (result != 1) throw new ForbiddenException(50006);
+            if (result != Macro.OK) throw new ForbiddenException(50006);
+        }
+    }
+
+
+    private void save2Redis(Long uid, Long oid, String cids) {
+        String orderRedisKey = uid + "&" + oid + "&" + cids;
+        try {
+            stringRedisTemplate.opsForValue()
+                               .set(orderRedisKey, String.valueOf(Macro.OK), this.limitPayTime, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 有可能redis宕机或没开启
         }
     }
 }

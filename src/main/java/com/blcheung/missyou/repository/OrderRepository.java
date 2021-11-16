@@ -13,6 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
+    Optional<Order> findById(Long oid);
+
     Page<Order> findByUserId(Long uid, Pageable pageable);
 
     Page<Order> findByUserIdAndStatus(Long uid, Integer status, Pageable pageable);
@@ -26,6 +28,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Modifying
     @Query("update Order o set o.status = :status\n" + "where o.id = :oid")
     int updateOrderStatus(Long oid, Integer status);
+
+    @Modifying
+    @Query("update Order o set o.status = 5\n" + "where o.status = 1\n" + "and o.id = :oid")
+    int cancelOrder(Long oid);
 
     @Modifying
     @Query("update Order o set o.status = 2,\n" + "o.payTime = :payTime\n" + "where o.id = :oid")
