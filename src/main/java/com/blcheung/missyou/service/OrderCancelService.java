@@ -6,6 +6,7 @@ import com.blcheung.missyou.core.enumeration.OrderStatus;
 import com.blcheung.missyou.exception.http.ForbiddenException;
 import com.blcheung.missyou.exception.http.NotFoundException;
 import com.blcheung.missyou.exception.http.ParameterException;
+import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.model.Order;
 import com.blcheung.missyou.repository.OrderRepository;
 import com.blcheung.missyou.repository.SkuRepository;
@@ -42,11 +43,12 @@ public class OrderCancelService {
      * 取消订单
      *
      * @param oid 订单id
+     * @return boolean
      * @author BLCheung
-     * @date 2021/11/12 5:09 上午
+     * @date 2021/11/16 9:55 下午
      */
     @Transactional
-    public void cancel(Long oid) {
+    public boolean cancel(Long oid) {
         Order order = this.orderRepository.findById(oid)
                                           .orElseThrow(() -> new NotFoundException(70001));
 
@@ -57,9 +59,9 @@ public class OrderCancelService {
         if (result != Macro.OK) throw new ForbiddenException(70000);
 
         // 归还库存
-        order.getSnapItems()
-             .forEach(skuOrder -> {
-                 this.skuRepository.recoverStock(skuOrder.getId(), skuOrder.getCount());
-             });
+        return order.getSnapItems()
+                    .stream()
+                    .allMatch(skuOrder -> Macro.OK ==
+                                          this.skuRepository.recoverStock(skuOrder.getId(), skuOrder.getCount()));
     }
 }
