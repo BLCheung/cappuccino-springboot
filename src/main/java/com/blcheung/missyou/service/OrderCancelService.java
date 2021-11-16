@@ -6,15 +6,21 @@ import com.blcheung.missyou.core.enumeration.OrderStatus;
 import com.blcheung.missyou.exception.http.ForbiddenException;
 import com.blcheung.missyou.exception.http.NotFoundException;
 import com.blcheung.missyou.exception.http.ParameterException;
+import com.blcheung.missyou.exception.http.ServerErrorException;
 import com.blcheung.missyou.kit.LocalUserKit;
 import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.model.Order;
 import com.blcheung.missyou.model.User;
+import com.blcheung.missyou.model.UserCoupon;
 import com.blcheung.missyou.repository.OrderRepository;
 import com.blcheung.missyou.repository.SkuRepository;
+import com.blcheung.missyou.repository.UserCouponRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author BLCheung
@@ -23,28 +29,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class OrderCancelService {
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderRepository      orderRepository;
     @Autowired
-    private SkuRepository   skuRepository;
-
-    /**
-     * 取消订单
-     *
-     * @param messageBO redis的订单消息
-     * @author BLCheung
-     * @date 2021/11/12 4:49 上午
-     */
-    @Transactional
-    public void cancel(OrderRedisMessageBO messageBO) {
-        Long orderId = messageBO.getOrderId();
-
-        if (orderId <= 0) throw new ParameterException(70000);
-
-        Order order = this.orderRepository.findById(orderId)
-                                          .orElseThrow(() -> new NotFoundException(70001));
-
-        this.cancel(order);
-    }
+    private SkuRepository        skuRepository;
+    @Autowired
+    private UserCouponRepository userCouponRepository;
+    @Autowired
+    private CouponBackService    couponBackService;
 
     /**
      * 取消订单
@@ -63,6 +54,34 @@ public class OrderCancelService {
                  .equals(order.getUserId())) throw new ForbiddenException(20012);
 
         this.cancel(order);
+
+        List<UserCoupon> userCouponList = this.userCouponRepository.findAllByUserIdAndOrderId(user.getId(),
+                                                                                              order.getId());
+        if (userCouponList.isEmpty()) return;
+        List<Long> couponIds = userCouponList.stream()
+                                             .map(UserCoupon::getCouponId)
+                                             .collect(Collectors.toList());
+        this.couponBackService.returnBack(user.getId(), couponIds);
+    }
+
+    /**
+     * 取消订单
+     *
+     * @param messageBO redis的订单消息
+     * @author BLCheung
+     * @date 2021/11/12 4:49 上午
+     */
+    @Transactional
+    public void cancel(OrderRedisMessageBO messageBO) {
+        Long orderId = messageBO.getOrderId();
+
+        if (orderId <= 0) throw new ParameterException(70000);
+
+        Order order = this.orderRepository.findById(orderId)
+                                          .orElseThrow(() -> new ServerErrorException(70001));
+
+        this.cancel(order);
+        this.couponBackService.returnBack(messageBO.getUserId(), messageBO.getCouponIds());
     }
 
 
