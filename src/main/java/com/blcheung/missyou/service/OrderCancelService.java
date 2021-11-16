@@ -6,8 +6,10 @@ import com.blcheung.missyou.core.enumeration.OrderStatus;
 import com.blcheung.missyou.exception.http.ForbiddenException;
 import com.blcheung.missyou.exception.http.NotFoundException;
 import com.blcheung.missyou.exception.http.ParameterException;
+import com.blcheung.missyou.kit.LocalUserKit;
 import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.model.Order;
+import com.blcheung.missyou.model.User;
 import com.blcheung.missyou.repository.OrderRepository;
 import com.blcheung.missyou.repository.SkuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,36 +34,50 @@ public class OrderCancelService {
      * @author BLCheung
      * @date 2021/11/12 4:49 上午
      */
+    @Transactional
     public void cancel(OrderRedisMessageBO messageBO) {
         Long orderId = messageBO.getOrderId();
 
         if (orderId <= 0) throw new ParameterException(70000);
-        this.cancel(orderId);
+
+        Order order = this.orderRepository.findById(orderId)
+                                          .orElseThrow(() -> new NotFoundException(70001));
+
+        this.cancel(order);
     }
 
     /**
      * 取消订单
      *
      * @param oid 订单id
-     * @return boolean
      * @author BLCheung
-     * @date 2021/11/16 9:55 下午
+     * @date 2021/11/16 10:34 下午
      */
     @Transactional
-    public boolean cancel(Long oid) {
+    public void cancel(Long oid) {
         Order order = this.orderRepository.findById(oid)
                                           .orElseThrow(() -> new NotFoundException(70001));
 
+        User user = LocalUserKit.getUser();
+        if (!user.getId()
+                 .equals(order.getUserId())) throw new ForbiddenException(20012);
+
+        this.cancel(order);
+    }
+
+
+    private void cancel(Order order) {
         if (!OrderStatus.UNPAID.getValue()
                                .equals(order.getStatus())) throw new ForbiddenException(70014);
 
         int result = this.orderRepository.cancelOrder(order.getId());
-        if (result != Macro.OK) throw new ForbiddenException(70000);
+        if (result != Macro.OK) ResultKit.reject(70000, "id为" + order.getId() + "的订单取消失败");
 
         // 归还库存
-        return order.getSnapItems()
-                    .stream()
-                    .allMatch(skuOrder -> Macro.OK ==
-                                          this.skuRepository.recoverStock(skuOrder.getId(), skuOrder.getCount()));
+        order.getSnapItems()
+             .stream()
+             .filter(skuOrder -> Macro.OK != this.skuRepository.recoverStock(skuOrder.getId(), skuOrder.getCount()))
+             .findFirst()
+             .ifPresent(skuOrder -> ResultKit.reject(70000, "id为" + skuOrder.getId() + "的商品库存回滚错误,订单取消失败"));
     }
 }

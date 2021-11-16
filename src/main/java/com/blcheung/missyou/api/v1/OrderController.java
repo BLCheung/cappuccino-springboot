@@ -7,6 +7,7 @@ import com.blcheung.missyou.dto.OrderPagingDTO;
 import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.model.Order;
 import com.blcheung.missyou.model.UserAddress;
+import com.blcheung.missyou.service.OrderCancelService;
 import com.blcheung.missyou.service.OrderService;
 import com.blcheung.missyou.service.UserService;
 import com.blcheung.missyou.vo.OrderDetailVO;
@@ -23,9 +24,11 @@ import java.util.List;
 @RequestMapping("/order")
 public class OrderController {
     @Autowired
-    private OrderService orderService;
+    private OrderService       orderService;
     @Autowired
-    private UserService  userService;
+    private OrderCancelService orderCancelService;
+    @Autowired
+    private UserService        userService;
 
     /**
      * 创建订单
@@ -39,6 +42,22 @@ public class OrderController {
         Long orderId = this.orderService.createOrder(orderDTO);
 
         return ResultKit.resolve(orderId);
+    }
+
+    /**
+     * 取消订单
+     *
+     * @param orderId
+     * @return com.blcheung.missyou.common.Result<java.lang.Boolean>
+     * @author BLCheung
+     * @date 2021/11/16 10:39 下午
+     */
+    @PutMapping("/cancel/{orderId}")
+    @ScopeLevel()
+    public Result<Boolean> cancelOrder(@PathVariable("orderId") @NotNull(message = "订单id不能为空") Long orderId) {
+        this.orderCancelService.cancel(orderId);
+
+        return ResultKit.resolve(true);
     }
 
     /**
