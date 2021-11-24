@@ -1,14 +1,8 @@
 package com.blcheung.missyou.service;
 
-import com.blcheung.missyou.bo.OrderRedisMessageBO;
 import com.blcheung.missyou.constant.Macro;
-import com.blcheung.missyou.core.enumeration.OrderStatus;
-import com.blcheung.missyou.exception.business.Failed;
-import com.blcheung.missyou.exception.http.NotFoundException;
 import com.blcheung.missyou.exception.http.ServerErrorException;
-import com.blcheung.missyou.model.Order;
-import com.blcheung.missyou.model.UserCoupon;
-import com.blcheung.missyou.repository.OrderRepository;
+import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.repository.UserCouponRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,7 +30,7 @@ public class CouponBackService {
         if (couponIds.isEmpty() || couponIds.contains((long) -1)) return;
 
         int result = this.userCouponRepository.returnBack(userId, couponIds);
-        if (result != Macro.OK) throw new ServerErrorException(50000);
+        if (result != Macro.OK) ResultKit.reject(50000, "id" + userId + "用户的" + couponIds + "优惠券归还失败!");
     }
 
     // public void returnBack(OrderRedisMessageBO messageBO) {

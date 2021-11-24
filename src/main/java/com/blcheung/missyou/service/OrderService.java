@@ -11,8 +11,10 @@ import com.blcheung.missyou.exception.http.NotFoundException;
 import com.blcheung.missyou.exception.http.ParameterException;
 import com.blcheung.missyou.kit.LocalUserKit;
 import com.blcheung.missyou.kit.PagingKit;
+import com.blcheung.missyou.kit.ResultKit;
 import com.blcheung.missyou.logic.CouponChecker;
 import com.blcheung.missyou.logic.OrderChecker;
+import com.blcheung.missyou.manager.rocketmq.ScheduleProducer;
 import com.blcheung.missyou.model.*;
 import com.blcheung.missyou.repository.OrderRepository;
 import com.blcheung.missyou.repository.SkuRepository;
@@ -58,6 +60,10 @@ public class OrderService {
     private Long                 limitPayTime;
     @Autowired
     private StringRedisTemplate  stringRedisTemplate;
+    @Autowired
+    private ScheduleProducer     scheduleProducer;
+    @Value("${rocketmq.topic.order}")
+    private String               orderTopic;
 
     @Transactional  // 加上事务，同时对多张表进行增删查改时确保多张表能正确同步，一旦出错能够同时回滚所有事务
     public Long createOrder(CreateOrderDTO orderDTO) {
@@ -111,7 +117,9 @@ public class OrderService {
             couponIds = StringUtils.join(orderDTO.getCouponIds(), ",");
             this.writeOffCoupon(user.getId(), order.getId(), orderDTO.getCouponIds());
         }
-        this.save2Redis(user.getId(), order.getId(), couponIds);
+
+        // 加入到延时消息队列
+        this.save2MessageQueue(user.getId(), order.getId(), couponIds);
 
         return order.getId();
     }
@@ -280,15 +288,39 @@ public class OrderService {
         }
     }
 
+    private void save2MessageQueue(Long uid, Long oid, String cids) {
+        String orderKey = uid + "&" + oid + "&" + cids;
+        this.add2Redis(orderKey);
+        // this.add2Producer(orderKey);
+    }
 
-    private void save2Redis(Long uid, Long oid, String cids) {
-        String orderRedisKey = uid + "&" + oid + "&" + cids;
+
+    /**
+     * 加入到rocketMQ生产者延时任务
+     *
+     * @param orderKey
+     * @author BLCheung
+     * @date 2021/11/23 1:30 上午
+     */
+    private void add2Producer(String orderKey) {
+        this.scheduleProducer.send(this.orderTopic, orderKey);
+    }
+
+    /**
+     * 加入到redis
+     *
+     * @param orderKey
+     * @author BLCheung
+     * @date 2021/11/23 1:31 上午
+     */
+    private void add2Redis(String orderKey) {
         try {
             stringRedisTemplate.opsForValue()
-                               .set(orderRedisKey, String.valueOf(Macro.OK), this.limitPayTime, TimeUnit.SECONDS);
+                               .set(orderKey, String.valueOf(Macro.OK), this.limitPayTime, TimeUnit.SECONDS);
         } catch (Exception e) {
             e.printStackTrace();
             // 有可能redis宕机或没开启
+            ResultKit.reject("redis出现异常，或未开启");
         }
     }
 }

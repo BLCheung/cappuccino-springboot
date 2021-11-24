@@ -110,4 +110,27 @@ public class CommonUtils {
         return bigDecimal.stripTrailingZeros()
                          .toPlainString();
     }
+
+    /**
+     * 字节数组转成16进制表示格式的字符串
+     *
+     * @return java.lang.String
+     * @author BLCheung
+     * @date 2021/11/20 2:35 上午
+     */
+    public static String toHexString(byte[] bytes) {
+        if (bytes == null || bytes.length <= 0) return "";
+
+        StringBuilder sb = new StringBuilder();
+        for (byte aByte : bytes) {
+            // 0~F前面补零
+            if (( aByte & 0xff ) < 0x10) {
+                sb.append("0");
+                sb.append(Integer.toHexString(0xff & aByte));
+            }
+        }
+
+        return sb.toString()
+                 .toLowerCase();
+    }
 }
