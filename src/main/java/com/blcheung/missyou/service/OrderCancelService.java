@@ -1,6 +1,6 @@
 package com.blcheung.missyou.service;
 
-import com.blcheung.missyou.bo.OrderRedisMessageBO;
+import com.blcheung.missyou.bo.OrderMessageQueueBO;
 import com.blcheung.missyou.constant.Macro;
 import com.blcheung.missyou.core.enumeration.OrderStatus;
 import com.blcheung.missyou.exception.http.ForbiddenException;
@@ -72,7 +72,7 @@ public class OrderCancelService {
      * @date 2021/11/12 4:49 上午
      */
     @Transactional
-    public void cancel(OrderRedisMessageBO messageBO) {
+    public void cancel(OrderMessageQueueBO messageBO) {
         Long orderId = messageBO.getOrderId();
 
         if (orderId <= 0) throw new ParameterException(70000);

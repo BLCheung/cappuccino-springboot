@@ -15,13 +15,13 @@ import java.util.stream.Collectors;
  */
 @Getter
 @Setter
-public class OrderRedisMessageBO {
+public class OrderMessageQueueBO {
     private Long       userId;
     private Long       orderId;
     private List<Long> couponIds;
     private String     message;
 
-    public OrderRedisMessageBO(String message) {
+    public OrderMessageQueueBO(String message) {
         this.message = message;
         this.parseMessage(this.message);
     }

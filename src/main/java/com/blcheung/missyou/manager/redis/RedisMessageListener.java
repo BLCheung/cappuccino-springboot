@@ -1,6 +1,6 @@
 package com.blcheung.missyou.manager.redis;
 
-import com.blcheung.missyou.bo.OrderRedisMessageBO;
+import com.blcheung.missyou.bo.OrderMessageQueueBO;
 import com.blcheung.missyou.service.OrderCancelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
@@ -24,7 +24,7 @@ public class RedisMessageListener implements MessageListener {
         System.out.println("body:" + body);
         System.out.println("channel:" + channel);
 
-        OrderRedisMessageBO messageBO = new OrderRedisMessageBO(body);
+        OrderMessageQueueBO messageBO = new OrderMessageQueueBO(body);
         this.orderCancelService.cancel(messageBO);
     }
 }
