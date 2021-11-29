@@ -1,1 +1,1 @@
-# springboot project for zbl-missyou
+# zbl-missyou-springboot
